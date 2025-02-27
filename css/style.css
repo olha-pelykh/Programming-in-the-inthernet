@@ -162,6 +162,34 @@ section.students {
   margin: 0;
 }
 
+.add__student__form {
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; Centers elements for consistency */
+  gap: 0px;
+}
+
+.add__student__form label {
+  font-weight: 600;
+  text-align: left;
+  color: #555;
+}
+
+.modal-wrapper-right {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #d1d1d1;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
+}
+
+.modal-wrapper-right:focus {
+  border-color: #4a90e2;
+  box-shadow: 0px 0px 5px rgba(74, 144, 226, 0.5);
+}
+
 .add__student__btn {
   align-self: flex-end;
   background-color: #b2c9ad;
@@ -233,36 +261,63 @@ section.students {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 100;
+  justify-content: center;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
 }
 
 .modal-wrapper-right {
-  align-content: right;
+  width: 100%; /* Ensures all elements take full container width */
+  max-width: 320px; /* Sets a consistent width */
+  padding: 10px;
+  border: 2px solid #d1d1d1;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s ease-in-out;
+  box-sizing: border-box; /* Prevents width issues with padding */
+}
+
+.modal-wrapper-right:focus {
+  border-color: #4a90e2;
+  box-shadow: 0px 0px 5px rgba(74, 144, 226, 0.5);
 }
 
 .modal {
-  color: black;
-  background-color: #f3f7f2;
-  border-radius: 24px;
+  background: #ffffff;
   padding: 2rem;
-  gap: 0.5rem;
+  border-radius: 24px;
   width: 20rem;
-  margin: 1rem;
   min-height: 15rem;
-  justify-content: center;
-  align-items: center;
+  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.modal h2 {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
 }
 
 .modal-btn {
-  padding: 0.5rem 1rem;
-  margin: 0.2rem;
-  background-color: #748da6;
-  color: #f3f7f2;
-  border: none;
+  width: 100%;
+  max-width: 320px;
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.modal-btn:hover {
+  transform: translateY(-2px);
 }
 
 .modal-warn {
@@ -297,4 +352,30 @@ section.students {
 
 .form__input-text {
   margin-bottom: 1rem;
+}
+
+.modal-btn:hover {
+  background: #357abd;
+  transform: translateY(-2px);
+}
+
+/* Close Button */
+#add-student-btn-close {
+  background: #d9534f;
+}
+
+#add-student-btn-close:hover {
+  background: #c9302c;
+}
+
+/* Smooth Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
