@@ -23,14 +23,23 @@
     <section id="body">
       <header id="header-main">
         <nav id="header-nav">
-          <a href="./index.html" class="header-title">CMS</a>
+          <a href="./index.html" class="header-logo">CMS</a>
           <ul id="header-nav-li">
-            <li><i class="fa-regular fa-bell"></i></li>
+            <li>
+              <i class="fa-regular fa-bell" id="notifications-button"></i>
+              <div class="notifications hidden" id="modal-notifications">
+                <p>No new notifications</p>
+              </div>
+            </li>
             <li class="user-info">
               <a href="#">
                 <i class="fa-solid fa-circle-user"></i>
                 <span id="user-name">James Bond</span>
               </a>
+              <div class="profile-dropdown hidden" id="modal-profile">
+                <p>Profile settings</p>
+                <p>Logout</p>
+              </div>
             </li>
           </ul>
         </nav>
