@@ -165,14 +165,16 @@ section.students {
 .add__student__form {
   display: flex;
   flex-direction: column;
-  /* align-items: center; Centers elements for consistency */
-  gap: 0px;
+  gap: 10px;
 }
 
 .add__student__form label {
+  display: block; /* Ensures labels take full width */
+  text-align: left; /* Aligns text to the left */
   font-weight: 600;
   text-align: left;
   color: #555;
+  margin-bottom: 1px;
 }
 
 .modal-wrapper-right {
@@ -257,6 +259,7 @@ section.students {
 
 .modal-wrapper {
   position: fixed;
+  /* padding: 10px; */
   top: 0;
   left: 0;
   width: 100%;
@@ -269,20 +272,20 @@ section.students {
 }
 
 .modal-wrapper-right {
-  width: 100%; /* Ensures all elements take full container width */
-  max-width: 320px; /* Sets a consistent width */
+  width: 100%;
+  max-width: 320px;
   padding: 10px;
   border: 2px solid #d1d1d1;
   border-radius: 6px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.3s ease-in-out;
-  box-sizing: border-box; /* Prevents width issues with padding */
+  box-sizing: border-box;
 }
 
 .modal-wrapper-right:focus {
-  border-color: #4a90e2;
-  box-shadow: 0px 0px 5px rgba(74, 144, 226, 0.5);
+  border-color: #6b9a67;
+  box-shadow: 0px 0px 5px #6b9a67;
 }
 
 .modal {
@@ -301,7 +304,7 @@ section.students {
   font-size: 22px;
   font-weight: bold;
   margin-bottom: 15px;
-  color: #333;
+  color: black;
 }
 
 .modal-btn {
@@ -355,11 +358,19 @@ section.students {
 }
 
 .modal-btn:hover {
-  background: #357abd;
+  background: #6b9a67;
   transform: translateY(-2px);
 }
 
-/* Close Button */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 15px;
+}
+
 #add-student-btn-close {
   background: #d9534f;
 }
@@ -368,7 +379,6 @@ section.students {
   background: #c9302c;
 }
 
-/* Smooth Animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
