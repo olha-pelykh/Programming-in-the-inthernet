@@ -6,6 +6,7 @@ const addStudentModalWrapper = document.getElementById("add-student");
 const addStudentForm = document.getElementById("add-student-form");
 const cancelAddStudentButton = document.getElementById("add-student-btn-close");
 const deleteWarnModal = document.getElementById("delete-warn-student");
+const notificationModal = document.getElementById("modal-notifications");
 
 if (notificationButton) {
   notificationButton.addEventListener("dblclick", () => {
@@ -24,11 +25,11 @@ if (notificationButton) {
   });
 
   notificationButton.addEventListener("mouseover", () => {
-    show(document.getElementById("modal-notifications"));
+    show(notificationModal);
   });
 
   notificationButton.addEventListener("mouseleave", () => {
-    hide(document.getElementById("modal-notifications"));
+    hide(notificationModal);
   });
 }
 
@@ -43,15 +44,24 @@ if (profileButton) {
 }
 
 if (addStudentButton && addStudentForm) {
-  addStudentButton.addEventListener("click", () =>
-    show(addStudentModalWrapper)
-  );
+  addStudentButton.addEventListener("click", () => {
+    addStudentForm.reset(); // Очищаємо поля форми при відкритті
+    clearFieldErrors(); // Очищаємо помилки підсвічування
+    show(addStudentModalWrapper);
+  });
 
   addStudentForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
-    addStudent(Object.fromEntries(formData));
-    hide(addStudentModalWrapper);
+    const studentData = Object.fromEntries(formData);
+
+    if (validateStudentData(studentData)) {
+      addStudent(studentData);
+      hide(addStudentModalWrapper);
+    } else {
+      showNotification("Please fill in all fields correctly.");
+      highlightInvalidFields(studentData); // Підсвічуємо невалідні поля
+    }
   });
 
   cancelAddStudentButton.addEventListener("click", () =>
@@ -59,6 +69,59 @@ if (addStudentButton && addStudentForm) {
   );
 }
 
+// Валідація даних
+function validateStudentData({ group, name, surname, gender, birthday }) {
+  let isValid = true;
+
+  if (!group?.trim()) isValid = false;
+  if (!name?.trim()) isValid = false;
+  if (!surname?.trim()) isValid = false;
+  if (!gender) isValid = false;
+  if (!birthday) isValid = false;
+
+  return isValid;
+}
+
+// Підсвічуємо невалідні поля
+function highlightInvalidFields(studentData) {
+  const fields = ["group", "name", "surname", "gender", "birthday"];
+
+  fields.forEach((field) => {
+    if (!studentData[field]?.trim()) {
+      const inputField = addStudentForm.querySelector(`[name="${field}"]`);
+      if (inputField) {
+        inputField.classList.add("error-field");
+        inputField.addEventListener(
+          "focus",
+          () => {
+            inputField.classList.remove("error-field");
+          },
+          { once: true }
+        );
+      }
+    }
+  });
+}
+
+// Очищаємо всі помилки підсвічування
+function clearFieldErrors() {
+  const fields = addStudentForm.querySelectorAll("input, select");
+  fields.forEach((field) => field.classList.remove("error-field"));
+}
+
+// Показуємо повідомлення
+function showNotification(message) {
+  const notification = document.createElement("div");
+  notification.className = "notification";
+  notification.textContent = message;
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.remove();
+  }, 3000);
+}
+
+// Додаємо студента до таблиці
 function addStudent({ group, name, surname, gender, birthday }) {
   const tr = document.createElement("tr");
 
@@ -81,7 +144,6 @@ function addStudent({ group, name, surname, gender, birthday }) {
 
   studentsTable.querySelector("tbody").appendChild(tr);
 
-  // Add event listeners for edit and delete after appending new row
   tr.querySelector(".delete-btn").addEventListener("click", () => {
     show(deleteWarnModal);
     const currentStudent = tr;
@@ -99,14 +161,15 @@ function addStudent({ group, name, surname, gender, birthday }) {
 
   tr.querySelector(".edit-btn").addEventListener("click", () => {
     console.log("Edit button clicked");
-    // TODO: Implement edit student functionality
   });
 }
 
+// Показуємо модальне вікно
 function show(modalWindow) {
   modalWindow?.classList.remove("hidden");
 }
 
+// Ховаємо модальне вікно
 function hide(modalWindow) {
   modalWindow?.classList.add("hidden");
 }
