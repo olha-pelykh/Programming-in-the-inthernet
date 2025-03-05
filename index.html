@@ -26,7 +26,9 @@
           <a href="./index.html" class="header-logo">CMS</a>
           <ul id="header-nav-li">
             <li>
-              <i class="fa-regular fa-bell" id="notifications-button"></i>
+              <i class="fa-regular fa-bell" id="notifications-button"
+                ><span id="notification-dot"></span
+              ></i>
               <div class="notifications hidden" id="modal-notifications">
                 <p>No new notifications</p>
               </div>
@@ -59,11 +61,19 @@
         <section class="content">
           <div class="students__list" id="div-main">
             <h1 class="headings">Students</h1>
-            <button class="add__student__btn" id="add-student-btn">+</button>
+            <div id="head-table-buttons">
+              <button class="add__student__btn" id="delete-selected-btn">
+                <i class="fa-solid fa-trash" aria-hidden="true"></i>
+              </button>
+              <button class="add__student__btn" id="add-student-btn">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+            <!-- <div id="table"> -->
             <table class="students__table" id="students-table">
               <thead>
                 <tr>
-                  <th><input type="checkbox" /></th>
+                  <th><input type="checkbox" id="select-all" /></th>
                   <th>Group</th>
                   <th>Name</th>
                   <th>Gender</th>
@@ -74,12 +84,18 @@
               </thead>
               <tbody></tbody>
             </table>
+            <!-- </div> -->
           </div>
         </section>
       </div>
       <div class="modal-wrapper hidden" id="add-student">
         <div class="modal">
-          <h2>Add student</h2>
+          <div class="modal-header">
+            <h2>Add student</h2>
+            <button type="button" id="close-modal-btn" class="close-btn">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
           <form class="add__student__form" id="add-student-form">
             <div class="student__field">
               <label for="group">Group</label>
@@ -137,6 +153,16 @@
               </button>
             </div>
           </form>
+        </div>
+      </div>
+
+      <div id="delete-confirm-modal" class="modal-wrapper hidden">
+        <div class="modal modal-warn">
+          <h2>Are you sure you want to delete the selected items?</h2>
+          <div class="button-group">
+            <button class="modal-btn" id="cancel-delete-btn">Cancel</button>
+            <button class="modal-btn" id="confirm-delete-btn">Delete</button>
+          </div>
         </div>
       </div>
 
