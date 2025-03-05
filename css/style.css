@@ -163,6 +163,14 @@ table {
   background: #f3f7f2;
 }
 
+/* #table {
+  width: 100%;
+  border-collapse: collapse;
+  padding: 10px;
+  justify-content: center;
+  align-items: center;
+} */
+
 th,
 td {
   padding: 8px;

@@ -7,6 +7,7 @@ const addStudentForm = document.getElementById("add-student-form");
 const cancelAddStudentButton = document.getElementById("add-student-btn-close");
 const deleteWarnModal = document.getElementById("delete-warn-student");
 const notificationModal = document.getElementById("modal-notifications");
+
 const selectAllCheckbox = document.getElementById("select-all");
 const deleteSelectedButton = document.getElementById("delete-selected-btn");
 const deleteConfirmModal = document.getElementById("delete-confirm-modal");
