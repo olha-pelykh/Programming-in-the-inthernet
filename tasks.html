@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/style.css" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="body">
+      <header id="header-main">
+        <nav id="header-nav">
+          <a href="./index.html" class="header-logo">CMS</a>
+          <div id="header-nav-items">
+            <div class="notification-container">
+              <i class="fa-regular fa-bell" id="notifications-button">
+                <span id="notification-dot"></span>
+              </i>
+              <div class="notifications hidden" id="modal-notifications">
+                <p>No new notifications</p>
+              </div>
+            </div>
+            <div class="user-info" id="user-info">
+              <a href="#">
+                <i class="fa-solid fa-circle-user" id="user-logo"></i>
+                <span id="user-name">James Bond</span>
+              </a>
+              <div class="profile-dropdown hidden" id="modal-profile">
+                <p>Profile settings</p>
+                <p>Logout</p>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
+
+      <div id="main">
+        <aside>
+          <div id="div-aside">
+            <ul id="menu-list">
+              <li data-page="dashboard">
+                <a href="dashboard.html">Dashboard</a>
+              </li>
+              <li data-page="students">
+                <a href="index.html">Students</a>
+              </li>
+              <li data-page="tasks">
+                <a href="tasks.html"><b>Tasks</b></a>
+              </li>
+            </ul>
+          </div>
+        </aside>
+        <div class="content"><h2>Tasks</h2></div>
+      </div>
+    </div>
+    <script src="./js/script.js"></script>
+  </body>
+</html>

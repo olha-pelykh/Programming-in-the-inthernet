@@ -16,7 +16,12 @@ const cancelDeleteButton = document.getElementById("cancel-delete-btn");
 const cancelAddStudentButtonSmall = document.getElementById("close-modal-btn");
 const notificationDot = document.getElementById("notification-dot");
 
+const deleteWarnText = deleteWarnModal.querySelector("h2");
+const cancelDeleteWarnButton = document.getElementById("cancel-modal-btn");
+const confirmDeleteWarnButton = document.getElementById("delete-modal-btn");
+
 notificationDot.style.display = "block";
+let closeTimeout; // Змінна для збереження таймера
 
 notificationButton.addEventListener("mouseenter", () => {
   notificationDot.style.display = "none";
@@ -62,8 +67,6 @@ if (deleteSelectedButton) {
       showNotification("No selected items of table.");
       return;
     }
-
-    // Показуємо модальне вікно підтвердження
     show(deleteConfirmModal);
   });
 
@@ -76,15 +79,12 @@ if (deleteSelectedButton) {
       checkbox.closest("tr").remove();
     });
 
-    // Після видалення знімаємо головний чекбокс
     selectAllCheckbox.checked = false;
 
-    // Ховаємо модальне вікно
     hide(deleteConfirmModal);
   });
 
   cancelDeleteButton.addEventListener("click", () => {
-    // Просто закриваємо модальне вікно
     hide(deleteConfirmModal);
   });
 }
@@ -103,14 +103,39 @@ if (notificationButton) {
         iterations: 1,
       }
     );
+    setTimeout(() => {
+      window.location.href = "messages.html";
+    }, 500);
   });
 
   notificationButton.addEventListener("mouseover", () => {
     show(notificationModal);
+    if (closeTimeout) {
+      clearTimeout(closeTimeout);
+    }
   });
 
   notificationButton.addEventListener("mouseleave", () => {
-    hide(notificationModal);
+    closeTimeout = setTimeout(() => {
+      if (!notificationModal.matches(":hover")) {
+        // Перевіряємо, чи миша не над модальним вікном
+        hide(notificationModal);
+      }
+    }, 300); // Затримка в 300 мс
+  });
+
+  notificationModal.addEventListener("mouseenter", () => {
+    show(notificationModal); // Залишити вікно відкритим
+    // Якщо є таймер на закриття, скидаємо його
+    if (closeTimeout) {
+      clearTimeout(closeTimeout);
+    }
+  });
+
+  notificationModal.addEventListener("mouseleave", () => {
+    closeTimeout = setTimeout(() => {
+      hide(notificationModal); // Закрити вікно після затримки
+    }, 300); // Затримка в 300 мс
   });
 }
 
@@ -280,3 +305,33 @@ function show(modalWindow) {
 function hide(modalWindow) {
   modalWindow?.classList.add("hidden");
 }
+
+// Function to show delete confirmation for a specific student
+function confirmDeleteStudent(studentRow) {
+  const studentName = studentRow.querySelector("td:nth-child(3)").textContent;
+  deleteWarnText.textContent = `Delete student named ${studentName}?`;
+
+  show(deleteWarnModal);
+
+  // Remove previous event listeners to prevent multiple bindings
+  confirmDeleteWarnButton.replaceWith(confirmDeleteWarnButton.cloneNode(true));
+  confirmDeleteWarnButton = document.getElementById("delete-modal-btn");
+
+  confirmDeleteWarnButton.addEventListener("click", () => {
+    studentRow.remove();
+    hide(deleteWarnModal);
+  });
+}
+
+// Adding event listeners to delete buttons
+studentsTable.addEventListener("click", (event) => {
+  if (event.target.closest(".delete-btn")) {
+    const studentRow = event.target.closest("tr");
+    confirmDeleteStudent(studentRow);
+  }
+});
+
+// // Cancel delete modal
+// cancelDeleteWarnButton.addEventListener("click", () => {
+//   hide(deleteWarnModal);
+// });

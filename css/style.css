@@ -34,6 +34,91 @@ main {
   display: flex;
   overflow: hidden;
 }
+/* Header */
+#header-main {
+  background-color: #b2c9ad;
+  border-radius: 12px;
+}
+
+#header-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+}
+
+#header-nav-items {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: relative;
+}
+
+#header-nav a.header-logo {
+  font-size: 20px;
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+#header-nav-items {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0;
+  list-style: none;
+  position: relative;
+}
+/*Notifications*/
+.notifications-messages {
+  position: absolute;
+  top: 40px; /* Відступ від іконки */
+  right: 0;
+  width: 300px; /* Регулюй під свої потреби */
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  max-height: 280px;
+  -webkit-overflow-scrolling: touch;
+  overflow-x: auto;
+}
+
+.notifications-messages::-webkit-scrollbar {
+  width: 0px;
+}
+
+.notification-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px; /* Відстань між іконкою та текстом */
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.notification:last-child {
+  border-bottom: none; /* Забираємо лінію в останнього елемента */
+}
+
+.user-icon {
+  font-size: 24px;
+  color: #555;
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-weight: bold;
+  margin: 0;
+}
+
+.user-message {
+  margin: 5px 0 0;
+  color: #333;
+}
 
 aside {
   width: 10%;
@@ -77,34 +162,6 @@ aside {
   border-radius: 12px;
   margin: 20px 0px 10px 10px;
   overflow: hidden;
-}
-
-#header-main {
-  background-color: #b2c9ad;
-  border-radius: 12px;
-}
-
-#header-nav {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 8px 20px;
-}
-
-#header-nav a.header-logo {
-  font-size: 20px;
-  text-decoration: none;
-  color: black;
-  font-weight: bold;
-}
-
-#header-nav-li {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin: 0;
-  list-style: none;
-  position: relative;
 }
 
 #notification-bell {
@@ -239,6 +296,10 @@ section.students {
   display: flex;
   justify-content: right;
   gap: 5px;
+}
+
+.hidden__labels {
+  display: none;
 }
 
 .add__student__btn i {
@@ -467,6 +528,21 @@ section.students {
   background: #e9807c;
 }
 
+.students__table-wrapper {
+  display: flex;
+  justify-content: center; /* Центрує таблицю по горизонталі */
+  align-items: center; /* Якщо потрібно центрувати і по вертикалі */
+  width: 100%;
+  /* overflow-x: auto; */
+}
+
+.students__table {
+  width: 100%;
+  min-width: 300px;
+  border-collapse: collapse;
+  padding: auto;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -502,10 +578,89 @@ section.students {
     width: 100%;
   }
 
+  #menu-list {
+    display: flex;
+    justify-content: center;
+  }
+  .students__table th,
+  .students__table td {
+    padding: 5px;
+    font-size: 0.9em;
+  }
+
+  aside {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    padding: 5px;
+  }
+
+  #menu-list {
+    display: flex;
+    justify-content: center;
+    display: flex;
+    padding: 0;
+    margin: 0;
+  }
+
+  .students__table-wrapper {
+    width: 100%; /* Забезпечує адаптивність */
+    overflow-x: auto;
+    justify-content: flex-start;
+    -webkit-overflow-scrolling: touch; /* Плавний скролінг на iOS */
+  }
+
+  #notification-dot {
+    right: 41px;
+    width: 10px;
+    height: 10px;
+  }
+
+  #user-name {
+    display: none;
+  }
+
+  .students__table {
+    width: 100%; /* Дозволяє таблиці розтягуватися */
+    min-width: 600px; /* Мінімальна ширина, щоб не стискалася */
+    border-collapse: collapse;
+  }
+
+  .notifications {
+    left: 33%;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  #wrapper {
+    flex-direction: column;
+  }
+
+  #header-nav {
+    order: -1;
+  }
+
+  #main {
+    margin-top: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .students__table {
+    margin-top: 20px;
+  }
+
+  .content {
+    margin: 0;
+    width: 100%;
+  }
+
   .students__table th,
   .students__table td {
     padding: 8px;
     font-size: 0.9em;
+    /* white-space: nowrap; */
   }
 
   #menu-list {
@@ -532,6 +687,21 @@ section.students {
     display: flex;
     padding: 0;
     margin: 0;
+  }
+
+  .students__table-wrapper {
+    display: flex;
+    justify-content: center; /* Центрує таблицю по горизонталі */
+    align-items: center; /* Якщо потрібно центрувати і по вертикалі */
+    width: 100%;
+    /* overflow-x: auto; */
+  }
+
+  .students__table {
+    width: 100%;
+    min-width: 600px;
+    border-collapse: collapse;
+    padding: auto;
   }
 }
 
