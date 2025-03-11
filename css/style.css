@@ -210,7 +210,6 @@ i {
   font-variation-settings: "YOPQ" 300;
   font-size: 18px;
   list-style: none;
-  padding: auto;
   margin: 0;
 }
 
@@ -425,10 +424,9 @@ section.students {
   flex-direction: column;
   align-items: center;
   /* gap: 5rem; */
-  padding: 1rem 2rem;
-  width: auto + 10px;
-  height: auto + 5px;
-  min-height: 0;
+  padding: 0rem 3rem;
+  width: auto;
+  height: auto;
 }
 
 .hidden {
@@ -540,7 +538,6 @@ section.students {
   width: 100%;
   min-width: 300px;
   border-collapse: collapse;
-  padding: auto;
 }
 
 @keyframes fadeIn {
@@ -701,7 +698,6 @@ section.students {
     width: 100%;
     min-width: 600px;
     border-collapse: collapse;
-    padding: auto;
   }
 }
 

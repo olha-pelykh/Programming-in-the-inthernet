@@ -1,6 +1,9 @@
+/* jshint esversion: 6 */
+/* jshint esversion: 11 */
 const studentsTable = document.getElementById("students-table");
 const notificationButton = document.getElementById("notifications-button");
 const profileButton = document.getElementById("user-name");
+const profileIcon = document.getElementById("user-logo");
 const addStudentButton = document.getElementById("add-student-btn");
 const addStudentModalWrapper = document.getElementById("add-student");
 const addStudentForm = document.getElementById("add-student-form");
@@ -14,17 +17,16 @@ const deleteConfirmModal = document.getElementById("delete-confirm-modal");
 const confirmDeleteButton = document.getElementById("confirm-delete-btn");
 const cancelDeleteButton = document.getElementById("cancel-delete-btn");
 const cancelAddStudentButtonSmall = document.getElementById("close-modal-btn");
-const notificationDot = document.getElementById("notification-dot");
 
 const deleteWarnText = deleteWarnModal.querySelector("h2");
-const cancelDeleteWarnButton = document.getElementById("cancel-modal-btn");
 const confirmDeleteWarnButton = document.getElementById("delete-modal-btn");
 
-notificationDot.style.display = "block";
+// notificationDot.style.display = "block";
 let closeTimeout; // Змінна для збереження таймера
 
 notificationButton.addEventListener("mouseenter", () => {
-  notificationDot.style.display = "none";
+  notificationButton.classList.remove("fa-solid");
+  notificationButton.classList.add("fa-regular");
 });
 
 notificationButton.addEventListener("mouseleave", () => {});
@@ -139,8 +141,9 @@ if (notificationButton) {
   });
 }
 
-if (profileButton) {
-  profileButton.addEventListener("click", (event) => {
+if (profileButton || profileIcon) {
+  // Check if either the username or icon is present
+  const toggleModal = (event) => {
     const modal = document.getElementById("modal-profile");
     const isProfileOpened = profileButton.dataset.isProfileOpened === "true";
 
@@ -152,23 +155,31 @@ if (profileButton) {
       show(modal);
       profileButton.dataset.isProfileOpened = "true";
 
-      // Додаємо обробник для кліка поза модальним вікном
+      // Add the click event listener to close the modal if clicking outside
       setTimeout(() => {
         document.addEventListener("click", closeOnClickOutside);
       }, 0);
     }
 
-    event.stopPropagation(); // Запобігаємо спрацюванню document.click одразу
-  });
+    event.stopPropagation(); // Prevent triggering the document click handler immediately
+  };
 
-  function closeOnClickOutside(event) {
+  // Add event listeners to both the profile button and profile icon
+  profileButton.addEventListener("click", toggleModal);
+  profileIcon.addEventListener("click", toggleModal);
+
+  const closeOnClickOutside = (event) => {
     const modal = document.getElementById("modal-profile");
-    if (!modal.contains(event.target) && event.target !== profileButton) {
+    if (
+      !modal.contains(event.target) &&
+      event.target !== profileButton &&
+      event.target !== profileIcon
+    ) {
       hide(modal);
       profileButton.dataset.isProfileOpened = "false";
       document.removeEventListener("click", closeOnClickOutside);
     }
-  }
+  };
 }
 
 if (addStudentButton && addStudentForm) {
@@ -256,7 +267,6 @@ function showNotification(message) {
 // Додаємо студента до таблиці
 function addStudent({ group, name, surname, gender, birthday }) {
   const tr = document.createElement("tr");
-
   tr.innerHTML = `
     <td><input type="checkbox"></td>
     <td>${group}</td>
@@ -273,9 +283,15 @@ function addStudent({ group, name, surname, gender, birthday }) {
       </button>
     </td>
   `;
+  const circle = tr.querySelector(".fa-circle");
+  if (name === "Olha" && surname === "Pelykh") {
+    circle.style.color = "#6b9a67";
+  }
 
+  // Append the row to the table
   studentsTable.querySelector("tbody").appendChild(tr);
 
+  // Add event listeners for the delete button
   tr.querySelector(".delete-btn").addEventListener("click", () => {
     show(deleteWarnModal);
     const currentStudent = tr;
@@ -291,6 +307,7 @@ function addStudent({ group, name, surname, gender, birthday }) {
       });
   });
 
+  // Add event listeners for the edit button
   tr.querySelector(".edit-btn").addEventListener("click", () => {
     console.log("Edit button clicked");
   });
@@ -309,13 +326,17 @@ function hide(modalWindow) {
 // Function to show delete confirmation for a specific student
 function confirmDeleteStudent(studentRow) {
   const studentName = studentRow.querySelector("td:nth-child(3)").textContent;
-  deleteWarnText.textContent = `Delete student named ${studentName}?`;
+  deleteWarnText.innerHTML = `Delete student named<br>${studentName}?`;
 
   show(deleteWarnModal);
 
   // Remove previous event listeners to prevent multiple bindings
-  confirmDeleteWarnButton.replaceWith(confirmDeleteWarnButton.cloneNode(true));
-  confirmDeleteWarnButton = document.getElementById("delete-modal-btn");
+  const newConfirmDeleteWarnButton = confirmDeleteWarnButton.cloneNode(true);
+  confirmDeleteWarnButton.replaceWith(newConfirmDeleteWarnButton);
+  newConfirmDeleteWarnButton.addEventListener("click", () => {
+    studentRow.remove();
+    hide(deleteWarnModal);
+  });
 
   confirmDeleteWarnButton.addEventListener("click", () => {
     studentRow.remove();
