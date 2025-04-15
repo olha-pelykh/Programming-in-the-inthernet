@@ -1,3 +1,15 @@
+:root {
+  --light-green-backglound-color: #f3f7f2;
+  --light-dark-green-backglound-color: #eaf2e8;
+  --light-dark-dark-green-backglound-color: #c7d8c2;
+  --main-green-color: #b2c9ad;
+  --dark-green-color: #6b9a67;
+  --main-text-color: #333;
+  --main-white-color: #ffffff;
+  --main-gray-color: #ccc;
+  --accent-red-color: #e9807c;
+}
+
 * {
   box-sizing: border-box;
   font-family: "Kumbh Sans", serif;
@@ -9,7 +21,7 @@ input[type="checkbox"] {
 
 body {
   padding: 25px 0px;
-  background-color: #f3f7f2;
+  background-color: var(--light-green-backglound-color);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -36,7 +48,7 @@ main {
 }
 /* Header */
 #header-main {
-  background-color: #b2c9ad;
+  background-color: var(--main-green-color);
   border-radius: 12px;
 }
 
@@ -57,7 +69,7 @@ main {
 #header-nav a.header-logo {
   font-size: 20px;
   text-decoration: none;
-  color: black;
+  color: var(--main-text-color);
   font-weight: bold;
 }
 
@@ -70,30 +82,50 @@ main {
   position: relative;
 }
 /*Notifications*/
-.notifications-messages {
+#notifications-button {
+  color: var(--main-text-color);
+}
+
+.notifications-form {
   position: absolute;
   top: 40px; /* Відступ від іконки */
   right: 0;
   width: 300px; /* Регулюй під свої потреби */
-  background: #fff;
+  background: var(--main-white-color);
   border-radius: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 4px 8px var(--main-text-color);
   padding: 10px;
   max-height: 280px;
   -webkit-overflow-scrolling: touch;
   overflow-x: auto;
 }
 
-.notifications-messages::-webkit-scrollbar {
+.notifications-form::-webkit-scrollbar {
   width: 0px;
 }
 
-.notification-message {
+#notification-bell {
+  position: relative; /* Потрібно для позиціювання позначки */
+  transition: opacity 0.3s ease;
+}
+
+.message {
   display: flex;
   align-items: flex-start;
-  gap: 10px; /* Відстань між іконкою та текстом */
+  gap: 10px;
   padding: 10px;
   border-bottom: 1px solid #ddd;
+  color: var(--main-text-color);
+}
+
+.message-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-message {
+  margin: 5px 0 0;
+  color: var(--main-text-color);
 }
 
 .notification:last-child {
@@ -102,12 +134,7 @@ main {
 
 .user-icon {
   font-size: 24px;
-  color: #555;
-}
-
-.message-content {
-  display: flex;
-  flex-direction: column;
+  color: var(--main-text-color) 5;
 }
 
 .user-name {
@@ -115,14 +142,10 @@ main {
   margin: 0;
 }
 
-.user-message {
-  margin: 5px 0 0;
-  color: #333;
-}
-
+/* Navigation */
 aside {
   width: 10%;
-  border: solid #b2c9ad;
+  border: solid var(--main-green-color);
   border-radius: 12px;
   margin: 20px 10px 10px 0px;
   padding: 0px 0px 15px 0px;
@@ -130,16 +153,24 @@ aside {
   min-width: 125px;
 }
 
-#menu-list {
+#nav-list {
+  font-family: "Kumbh Sans", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  font-variation-settings: "YOPQ" 300;
   font-size: 18px;
   list-style: none;
-  padding: 8px;
   margin: 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-#menu-list a {
+#nav-list a {
   text-decoration: none;
-  color: black;
+  color: var(--main-text-color);
   display: block;
   padding: 5px 12px;
   border-radius: 6px;
@@ -150,6 +181,7 @@ aside {
   font-size: 28px;
   margin: 0;
   align-self: flex-start;
+  color: var(--main-text-color);
 }
 
 .content {
@@ -158,26 +190,10 @@ aside {
   flex-direction: column;
   align-items: center;
   padding: 10px;
-  border: solid #b2c9ad;
+  border: solid var(--main-green-color);
   border-radius: 12px;
   margin: 20px 0px 10px 10px;
   overflow: hidden;
-}
-
-#notification-bell {
-  position: relative; /* Потрібно для позиціювання позначки */
-  transition: opacity 0.3s ease;
-}
-
-#notification-dot {
-  position: absolute;
-  top: 0px;
-  right: 135px;
-  width: 10px;
-  height: 10px;
-  background-color: #e9807c;
-  border-radius: 50%;
-  display: block;
 }
 
 .user-info {
@@ -191,7 +207,7 @@ aside {
   align-items: center;
   gap: 8px;
   text-decoration: none;
-  color: black;
+  color: var(--main-text-color);
 }
 
 #user-name {
@@ -202,21 +218,10 @@ i {
   font-size: 24px;
 }
 
-#menu-list {
-  font-family: "Kumbh Sans", serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  font-variation-settings: "YOPQ" 300;
-  font-size: 18px;
-  list-style: none;
-  margin: 0;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
-  background: #f3f7f2;
+  background: var(--light-green-backglound-color);
 }
 
 /* #table {
@@ -239,7 +244,7 @@ section.students {
   flex: 1;
 }
 
-.students__list {
+.students-list {
   width: 90%;
   display: flex;
   flex-direction: column;
@@ -249,48 +254,68 @@ section.students {
   margin: 0;
 }
 
-.add__student__form {
+/* .add-student-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+} */
+
+.form {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.add__student__form label {
+.form label {
   display: block;
   text-align: left;
   font-weight: 600;
   text-align: left;
-  color: #555;
+  color: var(--main-text-color) 5;
   margin-bottom: 1px;
 }
 
-.modal-wrapper-right {
+.add-student-field {
   width: 100%;
+  max-width: 320px;
   padding: 10px;
-  border: 2px solid #d1d1d1;
+  border: 2px solid var(--main-gray-color);
   border-radius: 6px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.3s ease-in-out;
+  box-sizing: border-box;
 }
 
-.modal-wrapper-right:focus {
-  border-color: #4a90e2;
-  box-shadow: 0px 0px 5px rgba(74, 144, 226, 0.5);
+.add-student-field:focus {
+  border-color: var(--dark-green-color);
+  box-shadow: 0px 0px 5px var(--dark-green-color);
 }
 
-.add__student__btn {
+.add-student-field-form label {
+  color: var(--main-text-color); /* Dark gray (change to your preferred color) */
+}
+
+.student-btn {
   align-self: flex-end;
-  background-color: #b2c9ad;
+  background-color: var(--main-green-color);
   padding: 0.5rem 1rem;
-  color: black;
+  color: var(--main-text-color);
   border: 0;
   border-radius: 16px;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }
 
-#head-table-buttons {
+.student-btn i {
+  font-size: 15px;
+}
+
+.add-student-btn:hover {
+  background-color: var(--accent-green-color);
+}
+
+#table-work-with-students-buttons {
   width: 100%;
   display: flex;
   justify-content: right;
@@ -301,15 +326,7 @@ section.students {
   display: none;
 }
 
-.add__student__btn i {
-  font-size: 15px;
-}
-
-.add__student__btn:hover {
-  background-color: #6b9a67;
-}
-
-.students__table {
+.students-table {
   width: 100%;
   display: table;
   border-collapse: collapse;
@@ -317,46 +334,47 @@ section.students {
   font-size: 0.9em;
   border-radius: 5px;
   overflow: hidden;
-  box-shadow: 0 0 20px #dfebdc;
+  box-shadow: 0 0 20px var(--light-dark-green-backglound-color);
 }
 
-.students__table thead tr {
-  background-color: #b2c9ad;
+.students-table thead tr {
+  background-color: var(--main-green-color);
   text-align: left;
 }
 
-.students__table td,
-.students__table th {
+.students-table td,
+.students-table th {
   text-align: left;
   padding: 6px 15px;
+  color: var(--main-text-color);
 }
 
-.students__table tbody tr td {
-  border-bottom: 1px solid #c7d8c2;
+.students-table tbody tr td {
+  border-bottom: 1px solid var(--light-dark-dark-green-backglound-color);
 }
 
-.students__table tbody tr:nth-of-type(even) {
-  background-color: #eaf2e8;
+.students-table tbody tr:nth-of-type(even) {
+  background-color: var(--light-dark-green-backglound-color);
 }
 
-.students__table tbody tr:nth-of-type(even) .student__btn {
-  background-color: #eaf2e8;
+.students-table tbody tr:nth-of-type(even) .table-student-btn {
+  background-color: var(--light-dark-green-backglound-color);
 }
 
-.student__btn {
+.table-student-btn {
   cursor: pointer;
-  background-color: #f3f7f2;
-  color: #b2c9ad;
+  background-color: var(--light-green-backglound-color);
+  color: var(--main-green-color);
   padding: 0.3rem 0.4rem;
   margin: 0.2rem;
   border: none;
 }
 
-.student__btn:hover {
-  color: #6b9a67;
+.table-student-btn:hover {
+  color: var(--accent-green-color);
 }
 
-.modal-wrapper {
+.modal-form {
   position: fixed;
   top: 0;
   left: 0;
@@ -369,44 +387,28 @@ section.students {
   transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
 }
 
-.modal-wrapper-right {
-  width: 100%;
-  max-width: 320px;
-  padding: 10px;
-  border: 2px solid #d1d1d1;
-  border-radius: 6px;
-  font-size: 14px;
-  outline: none;
-  transition: border-color 0.3s ease-in-out;
-  box-sizing: border-box;
-}
-
-.modal-wrapper-right:focus {
-  border-color: #6b9a67;
-  box-shadow: 0px 0px 5px #6b9a67;
-}
-
-.modal {
-  background: #ffffff;
+.add-student-form,
+.modal-warn {
+  background: var(--main-white-color);
   padding: 2rem;
   border-radius: 24px;
   width: 20rem;
   min-height: 15rem;
-  box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 10px 25px var(--main-text-color);
   text-align: center;
   position: relative;
   animation: fadeIn 0.3s ease-in-out;
 }
 
-.modal h2 {
+.add-student-form h2 {
   font-size: 22px;
   font-weight: bold;
   margin-bottom: 15px;
-  color: black;
+  color: var(--main-text-color);
 }
 
-.modal-btn {
-  border: #ccc 1px solid;
+.modal-form-btn {
+  border: var(--main-gray-color) 1px solid;
   width: 100%;
   max-width: 320px;
   padding: 12px;
@@ -418,7 +420,26 @@ section.students {
   transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
 }
 
-.modal-warn {
+.gray-modal-form-btn:hover {
+  background: var(--main-gray-color);
+  transform: translateY(-2px);
+  transform: translateY(-2px);
+}
+
+.modal-form-btn:hover {
+  transform: translateY(-2px);
+  /* background: var(--main-green-color); */
+  transform: translateY(-2px);
+}
+
+.red-modal-form-btn:hover {
+  background: var(--accent-red-color);
+  border-color: var(--accent-red-color);
+  transform: translateY(-2px);
+  transform: translateY(-2px);
+}
+
+.modal-form-warn {
   justify-content: center;
   display: flex;
   flex-direction: column;
@@ -434,16 +455,16 @@ section.students {
 }
 
 .notifications,
-.profile-dropdown {
+.profile-form {
   position: absolute;
   top: 100%;
   left: 72%;
   transform: translateX(-50%);
-  background: white;
+  background: var(--main-white-color);
   border-radius: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--main-gray-color);
   padding: 10px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 2px 10px var(--main-text-color);
   z-index: 100;
   min-width: 150px;
   text-align: center;
@@ -455,18 +476,8 @@ section.students {
   top: 40px;
 }
 
-.profile-dropdown {
-  top: 40px;
-}
-
 .form__input-text {
   margin-bottom: 1rem;
-}
-
-.modal-btn:hover {
-  transform: translateY(-2px);
-  background: #b2c9ad;
-  transform: translateY(-2px);
 }
 
 .button-group {
@@ -478,7 +489,7 @@ section.students {
   margin-top: 15px;
 }
 
-.modal-header {
+.add-student-form-header {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -487,7 +498,7 @@ section.students {
   width: 100%;
 }
 
-.modal-header h2 {
+.add-student-form-header h2 {
   flex-grow: 1; /* Забезпечує, що заголовок займатиме весь доступний простір */
   text-align: center;
 }
@@ -501,7 +512,7 @@ section.students {
   right: -15px;
   bottom: 50px;
   padding: 0.25rem 0.7rem;
-  color: black;
+  color: var(--main-text-color);
   border: 0;
   border-radius: 16px;
   transition: all 0.2s ease-in-out;
@@ -513,31 +524,22 @@ section.students {
 
 #cancel-modal-btn:hover,
 #cancel-delete-btn:hover {
-  background: #bebebe;
+  background: var(--main-gray-color);
 }
 
-#close-modal-btn:hover {
-  background: #f0f0f0;
-}
-
-#add-student-btn-close:hover,
+#close-add-student-form-btn:hover,
 #delete-modal-btn:hover,
 #confirm-delete-btn:hover {
-  background: #e9807c;
+  background: var(--main-gray-color);
 }
 
-.students__table-wrapper {
+.students-table-form {
   display: flex;
   justify-content: center; /* Центрує таблицю по горизонталі */
   align-items: center; /* Якщо потрібно центрувати і по вертикалі */
   width: 100%;
-  /* overflow-x: auto; */
-}
-
-.students__table {
-  width: 100%;
-  min-width: 300px;
-  border-collapse: collapse;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Плавний скролінг на iOS */
 }
 
 @keyframes fadeIn {
@@ -566,7 +568,7 @@ section.students {
     flex-direction: column;
   }
 
-  .students__table {
+  .students-table {
     margin-top: 20px;
   }
 
@@ -575,12 +577,16 @@ section.students {
     width: 100%;
   }
 
-  #menu-list {
+  #nav-list {
     display: flex;
+    flex-direction: row;
     justify-content: center;
+    padding: 0;
+    margin: 0;
   }
-  .students__table th,
-  .students__table td {
+
+  .students-table th,
+  .students-table td {
     padding: 5px;
     font-size: 0.9em;
   }
@@ -593,21 +599,6 @@ section.students {
     padding: 5px;
   }
 
-  #menu-list {
-    display: flex;
-    justify-content: center;
-    display: flex;
-    padding: 0;
-    margin: 0;
-  }
-
-  .students__table-wrapper {
-    width: 100%; /* Забезпечує адаптивність */
-    overflow-x: auto;
-    justify-content: flex-start;
-    -webkit-overflow-scrolling: touch; /* Плавний скролінг на iOS */
-  }
-
   #notification-dot {
     right: 41px;
     width: 10px;
@@ -618,7 +609,7 @@ section.students {
     display: none;
   }
 
-  .students__table {
+  .students-table {
     width: 100%; /* Дозволяє таблиці розтягуватися */
     min-width: 600px; /* Мінімальна ширина, щоб не стискалася */
     border-collapse: collapse;
@@ -644,7 +635,7 @@ section.students {
     flex-direction: column;
   }
 
-  .students__table {
+  .students-table {
     margin-top: 20px;
   }
 
@@ -653,22 +644,26 @@ section.students {
     width: 100%;
   }
 
-  .students__table th,
-  .students__table td {
+  .students-table th,
+  .students-table td {
     padding: 8px;
     font-size: 0.9em;
     /* white-space: nowrap; */
   }
 
-  #menu-list {
+  #nav-list {
     display: flex;
     justify-content: center;
+    display: flex;
+    padding: 0;
+    margin: 0;
   }
-  .students__table th,
-  .students__table td {
+  /* 
+  .students-table th,
+  .students-table td {
     padding: 8px;
     font-size: 0.9em;
-  }
+  } */
 
   aside {
     width: 100%;
@@ -678,23 +673,7 @@ section.students {
     padding: 5px;
   }
 
-  #menu-list {
-    display: flex;
-    justify-content: center;
-    display: flex;
-    padding: 0;
-    margin: 0;
-  }
-
-  .students__table-wrapper {
-    display: flex;
-    justify-content: center; /* Центрує таблицю по горизонталі */
-    align-items: center; /* Якщо потрібно центрувати і по вертикалі */
-    width: 100%;
-    /* overflow-x: auto; */
-  }
-
-  .students__table {
+  .students-table {
     width: 100%;
     min-width: 600px;
     border-collapse: collapse;
@@ -707,8 +686,8 @@ section.students {
   right: 20px;
   padding: 15px 25px;
   border-radius: 8px;
-  background: #fff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  background: var(--main-white-color);
+  box-shadow: 0 4px 15px var(--main-text-color);
   z-index: 10000;
   max-width: 400px;
   transform: translateX(0);
@@ -716,9 +695,9 @@ section.students {
 }
 
 .notification.error {
-  background: #ffebee;
-  border-left: 4px solid #e9807c;
-  color: #e9807c;
+  background: var(--main-white-color);
+  border-left: 4px solid var(--accent-red-color);
+  color: var(--accent-red-color);
 }
 
 .notification.hide {
@@ -730,6 +709,7 @@ section.students {
   margin: 0 0 8px 0;
   font-weight: 600;
   font-size: 1.1em;
+  color: ver(--main-text-color);
 }
 
 .notification ul {
@@ -743,9 +723,16 @@ section.students {
 }
 
 .error-field {
-  border-color: #e9807c;
-  box-shadow: 0px 0px 5px #e9807c;
-  animation: shake 0.5s ease-in-out;
+  border: 2px solid var(--accent-red-color) !important;
+  animation: shake 0.5s;
+}
+
+.error-message {
+  color: var(--accent-red-color);
+  font-size: 0.8em;
+  margin-bottom: 0.3em;
+  display: block;
+  text-align: right;
 }
 
 @keyframes shake {
