@@ -1,0 +1,10 @@
+RewriteEngine On
+#RewriteBase /Programming-in-the-inthernet/
+
+# Якщо файл або директорія існує — не переписуємо
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Все інше перенаправляємо на index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+DirectoryIndex index.php

@@ -1,11 +1,14 @@
 /* jshint esversion: 6 */
 /* jshint esversion: 11 */
-let students = JSON.parse(localStorage.getItem("students")) || [];
-if (!Array.isArray(students)) {
-  students = [];
-}
-document.addEventListener("DOMContentLoaded", updateTable);
 
+const API_BASE_URL = "http://localhost/Programming-in-the-inthernet/api/students/";
+let students = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  updateStudentsOnServer();
+});
+
+// DOM Elements
 const studentsTable = document.getElementById("students-table");
 const notificationsButton = document.getElementById("notifications-button");
 const notificationsForm = document.getElementById("notifications-form");
@@ -26,29 +29,23 @@ const confirmDeleteSelectedStudentsForm = document.getElementById("confirm-delet
 const confirmDeleteSelectedStudentsButton = document.getElementById("confirm-delete-selected-students-btn");
 const cancelDeleteSelectedStudentsButton = document.getElementById("cancel-delete-selected-students-btn");
 
-//const deleteWarnStudentFormText = document.getElementById("delete-warn-student-form-text");
+const deleteWarnStudentFormText = deleteWarnStudentForm.querySelector("h2");
 const deleteDeleteStudentFormButton = document.getElementById("delete-delete-warn-student-form-btn");
 const cancelDeleteStudentFormButton = document.getElementById("cancel-delete-warn-student-form-btn");
 
-const deleteWarnStudentFormText = deleteWarnStudentForm.querySelector("h2");
+let closeTimeout;
 
-let closeTimeout; // Variable to store the timer
-
-//Show unsolid notification icon
+// Notification button interactions
 notificationsButton.addEventListener("mouseenter", () => {
   notificationsButton.classList.remove("fa-solid");
   notificationsButton.classList.add("fa-regular");
 });
 
-//Hide unsolid notification icon
-notificationsButton.addEventListener("mouseleave", () => {});
-
-//Checkbox for selecting all students
+// Checkbox for selecting all students
 if (selectAllCheckbox) {
   selectAllCheckbox.addEventListener("change", () => {
     const isChecked = selectAllCheckbox.checked;
     const checkboxes = studentsTable.querySelectorAll("tbody input[type='checkbox']");
-
     checkboxes.forEach((checkbox) => {
       checkbox.checked = isChecked;
     });
@@ -58,42 +55,46 @@ if (selectAllCheckbox) {
     if (event.target.type === "checkbox" && event.target.id !== "select-all") {
       const checkboxes = studentsTable.querySelectorAll("tbody input[type='checkbox']");
       const checkedCheckboxes = studentsTable.querySelectorAll("tbody input[type='checkbox']:checked");
-
-      // If all are selected manually, set the master checkbox to checked
       selectAllCheckbox.checked = checkboxes.length === checkedCheckboxes.length;
     }
   });
 }
 
-//Delete selected students
+// Delete selected students functionality
 if (deleteSelectedStudentsButton) {
   deleteSelectedStudentsButton.addEventListener("click", () => {
     const selectedStudents = getSelectedStudents();
-
     if (selectedStudents.length === 0) {
-      showNotification("No selected items of table.");
+      showNotification("No selected items in table.");
       return;
     }
 
     const studentsList = selectedStudents.map((student) => `${student.name} ${student.surname}`).join(", ");
-
     confirmDeleteSelectedStudentsForm.querySelector("h2").innerHTML = `
       Delete ${selectedStudents.length} students?<br>
       <small>${studentsList}</small>
     `;
-
     show(confirmDeleteSelectedStudentsForm);
   });
 
-  confirmDeleteSelectedStudentsButton.addEventListener("click", () => {
+  confirmDeleteSelectedStudentsButton.addEventListener("click", async () => {
     const selectedStudents = getSelectedStudents();
-    students = students.filter((student) => !selectedStudents.some((s) => s.id === student.id));
+    try {
+      const deletePromises = selectedStudents.map((student) =>
+        fetch(`${API_BASE_URL}/${student.id}`, { method: "DELETE" })
+      );
 
-    updateLocalStorage();
-    updateTable();
-    selectAllCheckbox.checked = false;
-    selectAllCheckbox.indeterminate = false;
-    hide(confirmDeleteSelectedStudentsForm);
+      await Promise.all(deletePromises);
+
+      students = students.filter((student) => !selectedStudents.some((s) => s.id === student.id));
+
+      updateTable();
+      selectAllCheckbox.checked = false;
+      hide(confirmDeleteSelectedStudentsForm);
+      showNotification(`${selectedStudents.length} students deleted successfully`);
+    } catch (error) {
+      handleApiError(error, "Failed to delete students");
+    }
   });
 
   cancelDeleteSelectedStudentsButton.addEventListener("click", () => {
@@ -101,67 +102,8 @@ if (deleteSelectedStudentsButton) {
   });
 }
 
-// Helper function to get selected students
-function getSelectedStudents() {
-  return Array.from(studentsTable.querySelectorAll('tbody input[type="checkbox"]:checked'))
-    .map((checkbox) => {
-      const studentId = parseInt(checkbox.dataset.id);
-      return students.find((student) => student.id === studentId);
-    })
-    .filter((student) => student !== undefined);
-}
-
-//Notitication button animation, showing notifications form and apen messages.html
-if (notificationsButton) {
-  notificationsButton.addEventListener("dblclick", () => {
-    notificationsButton.animate(
-      [
-        { transform: "rotate(0)" },
-        { transform: "rotate(-30deg)" },
-        { transform: "rotate(30deg)" },
-        { transform: "rotate(0)" },
-      ],
-      {
-        duration: 500,
-        iterations: 1,
-      }
-    );
-    setTimeout(() => {
-      window.location.href = "messages.html";
-    }, 500);
-  });
-
-  notificationsButton.addEventListener("mouseover", () => {
-    show(notificationsForm);
-    if (closeTimeout) {
-      clearTimeout(closeTimeout);
-    }
-  });
-
-  notificationsButton.addEventListener("mouseleave", () => {
-    closeTimeout = setTimeout(() => {
-      if (!notificationsForm.matches(":hover")) {
-        hide(notificationsForm);
-      }
-    }, 300);
-  });
-
-  notificationsForm.addEventListener("mouseenter", () => {
-    show(notificationsForm);
-    if (closeTimeout) {
-      clearTimeout(closeTimeout);
-    }
-  });
-
-  notificationsForm.addEventListener("mouseleave", () => {
-    closeTimeout = setTimeout(() => {
-      hide(notificationsForm);
-    }, 300);
-  });
-}
-
+// Profile button interactions
 if (profileNameButton || profileIconButton) {
-  // Check if either the username or icon is present
   const toggleModal = (event) => {
     const modal = document.getElementById("profile-form");
     const isProfileOpened = profileNameButton.dataset.isProfileOpened === "true";
@@ -173,17 +115,13 @@ if (profileNameButton || profileIconButton) {
     } else {
       show(modal);
       profileNameButton.dataset.isProfileOpened = "true";
-
-      // Add the click event listener to close the modal if clicking outside
       setTimeout(() => {
         document.addEventListener("click", closeOnClickOutside);
       }, 0);
     }
-
-    event.stopPropagation(); // Prevent triggering the document click handler immediately
+    event.stopPropagation();
   };
 
-  // Add event listeners to both the profile button and profile icon
   profileNameButton.addEventListener("click", toggleModal);
   profileIconButton.addEventListener("click", toggleModal);
 
@@ -197,31 +135,34 @@ if (profileNameButton || profileIconButton) {
   };
 }
 
+// Student form handling
 if (addStudentButton && addStudentForm) {
   addStudentButton.addEventListener("click", () => {
     document.getElementById("student-id").value = "";
-    console.log("Add student clicked");
     addStudentModalWrapper.querySelector("h2").textContent = "Add Student";
-    addStudentForm.reset(); // Очищаємо поля форми при відкритті
-    clearFieldErrors(); // Очищаємо помилки підсвічування
+    addStudentForm.reset();
+    clearFieldErrors();
     show(addStudentModalWrapper);
   });
 
-  addStudentForm.addEventListener("submit", (event) => {
+  addStudentForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const studentData = Object.fromEntries(formData);
     const studentId = document.getElementById("student-id").value;
 
     if (validateStudentData(studentData)) {
-      if (studentId) {
-        updateStudent(studentId, studentData);
-      } else {
-        addStudent(studentData);
+      try {
+        if (studentId) {
+          await updateStudent(studentId, studentData);
+        } else {
+          await addStudent(studentData);
+        }
+        hide(addStudentModalWrapper);
+      } catch (error) {
+        handleApiError(error, "Failed to save student");
       }
-      hide(addStudentModalWrapper);
     } else {
-      // showNotification("Please fill in all fields correctly.");
       highlightInvalidFields(studentData);
     }
   });
@@ -230,82 +171,116 @@ if (addStudentButton && addStudentForm) {
   closeAddStudentFormButton.addEventListener("click", () => hide(addStudentModalWrapper));
 }
 
-function updateStudent(id, newData) {
-  const index = students.findIndex((student) => student.id == id);
-  if (index !== -1) {
-    const originalStudent = students[index];
-    const updatedStudent = {
-      ...originalStudent,
-      ...newData,
-      id: originalStudent.id, // Keep the original ID
-    };
-
-    students[index] = updatedStudent;
-    updateLocalStorage();
+// Server communication functions
+async function updateStudentsOnServer() {
+  setLoading(true);
+  try {
+    const response = await fetch(API_BASE_URL);
+    if (!response.ok) throw new Error("Failed to fetch students");
+    students = await response.json();
     updateTable();
-
-    // Output JSON to the console with indentation
-    console.log(
-      "Edited student:",
-      JSON.stringify(
-        {
-          id: updatedStudent.id,
-          name: updatedStudent.name,
-          surname: updatedStudent.surname,
-          group: updatedStudent.group,
-          gender: updatedStudent.gender,
-          birthday: updatedStudent.birthday,
-          status: updatedStudent.status,
-        },
-        null,
-        2
-      )
-    );
+  } catch (error) {
+    handleApiError(error, "Failed to load students");
+  } finally {
+    setLoading(false);
   }
+}
+
+async function addStudent(studentData) {
+  setLoading(true);
+  try {
+    const response = await fetch(API_BASE_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...studentData,
+        status: "inactive",
+      }),
+    });
+
+    if (!response.ok) throw new Error("Failed to add student");
+
+    const newStudent = await response.json();
+    students.push(newStudent);
+    updateTable();
+    showNotification("Student added successfully");
+    return newStudent;
+  } catch (error) {
+    handleApiError(error, "Failed to add student");
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function updateStudent(id, newData) {
+  setLoading(true);
+  try {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ ...newData, status: "active" }),
+    });
+
+    if (!response.ok) throw new Error("Failed to update student");
+
+    const updatedStudent = await response.json();
+    const index = students.findIndex((student) => student.id == id);
+    if (index !== -1) {
+      students[index] = updatedStudent;
+      updateTable();
+      showNotification("Student updated successfully");
+    }
+    return updatedStudent;
+  } catch (error) {
+    handleApiError(error, "Failed to update student");
+    throw error;
+  } finally {
+    setLoading(false);
+  }
+}
+
+// Helper functions
+function getSelectedStudents() {
+  return Array.from(studentsTable.querySelectorAll('tbody input[type="checkbox"]:checked'))
+    .map((checkbox) => {
+      const studentId = parseInt(checkbox.dataset.id);
+      return students.find((student) => student.id === studentId);
+    })
+    .filter((student) => student !== undefined);
 }
 
 function validateStudentData({ group, name, surname, gender, birthday }) {
   let isValid = true;
   const nameRegex = /^[A-Za-zА-Яа-яЁёЇїІіЄєҐґ\s'-]+$/u;
 
-  if (!group?.trim()) {
-    isValid = false;
-  }
-  if (!name?.trim()) {
-    isValid = false;
-  } else if (!nameRegex.test(name)) {
-    isValid = false;
-  }
-  if (!surname?.trim()) {
-    isValid = false;
-  } else if (!nameRegex.test(surname)) {
-    isValid = false;
-  }
-  if (!gender) {
-    isValid = false;
-  }
-  if (!birthday) {
-    isValid = false;
-  } else {
+  if (!group?.trim()) isValid = false;
+  if (!name?.trim() || !nameRegex.test(name)) isValid = false;
+  if (!surname?.trim() || !nameRegex.test(surname)) isValid = false;
+  if (!gender) isValid = false;
+
+  if (birthday) {
     const birthDate = new Date(birthday);
     const minDate = new Date("1900-01-01");
     const currentDate = new Date();
-
     const maxDate = new Date(currentDate.getFullYear() - 15, currentDate.getMonth(), currentDate.getDate());
 
-    if (isNaN(birthDate.getTime())) {
-      isValid = false;
-    } else if (birthDate < minDate || birthDate > maxDate) {
+    if (isNaN(birthDate.getTime()) || birthDate < minDate || birthDate > maxDate) {
       isValid = false;
     }
+  } else {
+    isValid = false;
   }
+
   return isValid;
 }
 
-// Підсвічуємо невалідні поля
 function highlightInvalidFields(studentData) {
   const nameRegex = /^[A-Za-zА-Яа-яЁёЇїІіЄєҐґ\s'-]+$/u;
-
   clearFieldErrors();
 
   const fieldValidations = {
@@ -328,25 +303,19 @@ function highlightInvalidFields(studentData) {
     birthday: {
       isValid: (() => {
         if (!studentData.birthday) return false;
-
         const birthDate = new Date(studentData.birthday);
         if (isNaN(birthDate.getTime())) return false;
-
         const minDate = new Date("1900-01-01");
         const currentDate = new Date();
         const maxDate = new Date(currentDate.getFullYear() - 15, currentDate.getMonth(), currentDate.getDate());
-
         return birthDate >= minDate && birthDate <= maxDate;
       })(),
       errorMessage: (() => {
         if (!studentData.birthday) return "Date of birth is required";
-
         const birthDate = new Date(studentData.birthday);
         if (isNaN(birthDate.getTime())) return "Invalid date format";
-
         const currentDate = new Date();
         const maxDate = new Date(currentDate.getFullYear() - 15, currentDate.getMonth(), currentDate.getDate());
-
         return `Date must be between 01.01.1900 and ${maxDate.toLocaleDateString()}`;
       })(),
     },
@@ -355,13 +324,9 @@ function highlightInvalidFields(studentData) {
   Object.entries(fieldValidations).forEach(([fieldName, validation]) => {
     const inputField = addStudentForm.querySelector(`[name="${fieldName}"]`);
     if (inputField && !validation.isValid) {
-      // Find the parent element for positioning
       const fieldContainer = inputField.closest(".form-field") || inputField.parentNode;
-
-      // Add error class to the field
       inputField.classList.add("error-field");
 
-      // Create an element for the error
       let errorElement = fieldContainer.querySelector(".error-message");
       if (!errorElement) {
         errorElement = document.createElement("div");
@@ -370,14 +335,11 @@ function highlightInvalidFields(studentData) {
       }
       errorElement.textContent = validation.errorMessage;
 
-      // Remove the error on focus
       inputField.addEventListener(
         "focus",
         () => {
           inputField.classList.remove("error-field");
-          if (errorElement) {
-            errorElement.remove();
-          }
+          if (errorElement) errorElement.remove();
         },
         { once: true }
       );
@@ -385,49 +347,19 @@ function highlightInvalidFields(studentData) {
   });
 }
 
-// Очищаємо всі помилки підсвічування
 function clearFieldErrors() {
   const errorMessages = addStudentForm.querySelectorAll(".error-message");
   errorMessages.forEach((msg) => msg.remove());
-
   const fields = addStudentForm.querySelectorAll("input, select");
   fields.forEach((field) => field.classList.remove("error-field"));
 }
 
-// Show notification
 function showNotification(message) {
   const notification = document.createElement("div");
   notification.className = "notification";
   notification.textContent = message;
   document.body.appendChild(notification);
-
-  setTimeout(() => {
-    notification.remove();
-  }, 3000);
-}
-
-// Add student to the table
-function addStudent({ group, name, surname, gender, birthday }) {
-  const newStudent = {
-    id: generateUniqueId(),
-    group,
-    name,
-    surname,
-    gender,
-    birthday,
-    status: "inactive",
-  };
-  students.push(newStudent);
-  updateLocalStorage();
-  updateTable();
-}
-
-function generateUniqueId() {
-  let newId;
-  do {
-    newId = Date.now();
-  } while (Array.isArray(students) && students.some((student) => student.id === newId));
-  return newId;
+  setTimeout(() => notification.remove(), 3000);
 }
 
 function updateTable() {
@@ -443,9 +375,9 @@ function updateTable() {
       <td>${student.name} ${student.surname}</td>
       <td>${student.gender}</td>
       <td>${student.birthday}</td>
-      <td><i class="fa fa-circle" style="color: ${
-        student.name === "Olha" && student.surname === "Pelykh" ? "#6b9a67" : "#d8d8d8"
-      }"></i></td>
+      <td>
+        <i class="fa fa-circle" style="color: ${student.status === "active" ? "#6b9a67" : "#d8d8d8"}"></i>
+      </td>
       <td class="table_buttons">
           <button class="table-student-btn edit-btn" data-id="${student.id}">
               <i class="fa fa-pencil btn__icon"></i>
@@ -456,30 +388,35 @@ function updateTable() {
       </td>
     `;
 
-    // Add delete handler for each new button
     tr.querySelector(".delete-btn").addEventListener("click", (event) => {
       const studentId = parseInt(event.target.closest(".delete-btn").dataset.id);
       const student = students.find((s) => s.id === studentId);
-
       if (!student) return;
 
       deleteWarnStudentFormText.innerHTML = `Delete student:<br><b>${student.name} ${student.surname}</b>?`;
       show(deleteWarnStudentForm);
 
-      // Confirm deletion
-      deleteDeleteStudentFormButton.onclick = () => {
-        students = students.filter((s) => s.id !== studentId);
-        updateLocalStorage();
-        updateTable();
-        hide(deleteWarnStudentForm);
+      deleteDeleteStudentFormButton.onclick = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/${studentId}`, {
+            method: "DELETE",
+          });
+
+          if (!response.ok) throw new Error("Failed to delete student");
+
+          students = students.filter((s) => s.id !== studentId);
+          updateTable();
+          hide(deleteWarnStudentForm);
+          showNotification("Student deleted successfully");
+        } catch (error) {
+          handleApiError(error, "Failed to delete student");
+        }
       };
     });
 
-    // Add event listener for editing
     tr.querySelector(".edit-btn").addEventListener("click", () => {
-      addStudentForm.reset(); // Clear form fields when opening
-      clearFieldErrors(); // Clear highlighting errors
-
+      addStudentForm.reset();
+      clearFieldErrors();
       document.getElementById("student-id").value = student.id;
       document.getElementById("group").value = student.group;
       document.getElementById("name").value = student.name;
@@ -487,25 +424,26 @@ function updateTable() {
       document.getElementById("gender").value = student.gender;
       document.getElementById("birthday").value = student.birthday;
       addStudentModalWrapper.querySelector("h2").textContent = "Edit Student";
-
       show(addStudentModalWrapper);
     });
 
     tbody.appendChild(tr);
   });
 }
-document.addEventListener("DOMContentLoaded", updateTable);
 
-document.getElementById("cancel-delete-warn-student-form-btn").addEventListener("click", () => {
-  hide(deleteWarnStudentForm);
-});
+function handleApiError(error, defaultMessage = "An error occurred") {
+  console.error("API Error:", error);
+  const message = error.message || defaultMessage;
+  showNotification(message);
+  return null;
+}
 
-function updateLocalStorage() {
-  if (!Array.isArray(students)) {
-    console.error("students is not an array! Resetting to empty array.");
-    students = [];
+function setLoading(isLoading) {
+  const loader = document.getElementById("loader");
+  if (loader) {
+    loader.style.display = isLoading ? "block" : "none";
   }
-  localStorage.setItem("students", JSON.stringify(students));
+  document.body.style.cursor = isLoading ? "wait" : "default";
 }
 
 function show(modalWindow) {
@@ -516,31 +454,7 @@ function hide(modalWindow) {
   modalWindow?.classList.add("hidden");
 }
 
-// // Function to show delete confirmation for a specific student
-// function confirmDeleteStudent(studentRow) {
-//   const studentName = studentRow.querySelector("td:nth-child(3)").textContent;
-//   deleteWarnText.innerHTML = `Delete student named<br>${studentName}?`;
-
-//   show(deleteWarnModal);
-
-//   // Remove previous event listeners to prevent multiple bindings
-//   const newConfirmDeleteWarnButton = confirmDeleteWarnButton.cloneNode(true);
-//   confirmDeleteWarnButton.replaceWith(newConfirmDeleteWarnButton);
-//   newConfirmDeleteWarnButton.addEventListener("click", () => {
-//     studentRow.remove();
-//     hide(deleteWarnModal);
-//   });
-
-//   confirmDeleteWarnButton.addEventListener("click", () => {
-//     studentRow.remove();
-//     hide(deleteWarnModal);
-//   });
-// }
-
-// // Adding event listeners to delete buttons
-// studentsTable.addEventListener("click", (event) => {
-//   if (event.target.closest(".delete-btn")) {
-//     const studentRow = event.target.closest("tr");
-//     confirmDeleteStudent(studentRow);
-//   }
-// });
+// Initialize delete warning cancel button
+document.getElementById("cancel-delete-warn-student-form-btn").addEventListener("click", () => {
+  hide(deleteWarnStudentForm);
+});

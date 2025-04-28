@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "group": "PZ-22",
+    "name": "ggg",
+    "surname": "gggg",
+    "gender": "Male",
+    "birthday": "2006-02-12",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "group": "PZ-22",
+    "name": "gggg",
+    "surname": "gggg",
+    "gender": "Male",
+    "birthday": "2021-12-05",
+    "status": "inactive"
+  },
+  {
+    "id": 3,
+    "group": "PZ-24",
+    "name": "Andrii",
+    "surname": "Kolos",
+    "gender": "Male",
+    "birthday": "2021-12-19",
+    "status": "active"
+  },
+  {
+    "id": 4,
+    "group": "PZ-23",
+    "name": "ggg",
+    "surname": "ffff",
+    "gender": "Female",
+    "birthday": "2021-12-05",
+    "status": "inactive"
+  },
+  {
+    "id": 5,
+    "group": "PZ-25",
+    "name": "ggg",
+    "surname": "ffff",
+    "gender": "Female",
+    "birthday": "2021-12-19",
+    "status": "inactive"
+  },
+  {
+    "id": 6,
+    "group": "PZ-24",
+    "name": "ggg",
+    "surname": "gggg",
+    "gender": "Male",
+    "birthday": "2021-11-29",
+    "status": "active"
+  },
+  {
+    "id": 7,
+    "group": "PZ-22",
+    "name": "ggg",
+    "surname": "gggg",
+    "gender": "Male",
+    "birthday": "2021-12-26",
+    "status": "inactive"
+  },
+  {
+    "id": 8,
+    "group": "PZ-26",
+    "name": "ggg",
+    "surname": "gggg",
+    "gender": "Male",
+    "birthday": "2021-12-27",
+    "status": "active"
+  }
+]
