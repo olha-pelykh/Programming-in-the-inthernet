@@ -91,120 +91,14 @@
                 <a href="./dashboard.html">Dashboard</a>
               </li>
               <li data-page="students">
-                <a href="./index.html"><b>Students</b></a>
+                <a href="./index.html">Students</a>
               </li>
               <li data-page="tasks"><a href="./tasks.html">Tasks</a></li>
             </ul>
           </div>
         </aside>
         <section class="content">
-          <div class="students-list">
-            <h1 class="headings">Students</h1>
-            <div id="table-work-with-students-buttons">
-              <button class="student-btn" id="delete-selected-students-btn" title="delete selected students">
-                <i class="fa-solid fa-trash" aria-hidden="true"></i>
-              </button>
-              <button class="student-btn" id="add-student-btn" title="add new student">
-                <i class="fa-solid fa-plus"></i>
-              </button>
-            </div>
-            <div class="students-table-form">
-              <table class="students-table" id="students-table">
-                <thead>
-                  <tr>
-                    <th>
-                      <input type="checkbox" id="select-all" title="select all items of table" /><label
-                        for="select-all"
-                        class="hidden__labels"
-                        >select all elements of table</label
-                      >
-                    </th>
-                    <th class="hidden-id hidden">Id</th>
-                    <th>Group</th>
-                    <th>Name</th>
-                    <th>Gender</th>
-                    <th>Birthday</th>
-                    <th>Status</th>
-                    <th>Options</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-      </div>
-      <div class="modal-form hidden" id="add-student">
-        <div class="add-student-form form">
-          <div class="add-student-form-header">
-            <h2 class="headings" id="add-student-form-header-text">Add student</h2>
-            <button type="button" id="close-add-student-form-btn" class="close-btn" title="close dialog window">
-              <i class="fa-solid fa-xmark"></i>
-            </button>
-          </div>
-          <form class="add-student-form-body form" id="add-student-form-body">
-            <input type="hidden" name="id" id="student-id" />
-            <div class="add-student-field-form">
-              <label for="group">Group</label>
-              <select name="group" id="group" class="add-student-field">
-                <option value selected disabled>Select group</option>
-                <option value="PZ-21">PZ-21</option>
-                <option value="PZ-22">PZ-22</option>
-                <option value="PZ-23">PZ-23</option>
-                <option value="PZ-24">PZ-24</option>
-                <option value="PZ-25">PZ-25</option>
-                <option value="PZ-26">PZ-26</option>
-              </select>
-            </div>
-            <div class="add-student-field-form">
-              <label for="name">First name</label>
-              <input type="text" name="name" class="add-student-field" id="name" />
-            </div>
-            <div class="add-student-field-form">
-              <label for="surname">Last name</label>
-              <input type="text" name="surname" class="add-student-field" id="surname" />
-            </div>
-            <div class="add-student-field-form">
-              <label for="gender">Gender</label>
-              <select name="gender" class="add-student-field" id="gender">
-                <option value selected disabled>Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="add-student-field-form">
-              <label for="birthday">Birthday</label>
-              <input type="date" name="birthday" class="add-student-field" id="birthday" /><br />
-            </div>
-            <div class="button-group">
-              <button type="submit" class="modal-form-btn gray-modal-form-btn">Ok</button>
-              <button type="button" class="modal-form-btn red-modal-form-btn" id="cancel-add-student-form-btn">
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <div id="confirm-delete-selected-students-form" class="modal-form hidden">
-        <div class="modal-warn form modal-form-warn">
-          <h2>Are you sure you want to delete the selected items?</h2>
-          <div class="button-group">
-            <button class="modal-form-btn gray-modal-form-btn" id="cancel-delete-selected-students-btn">Cancel</button>
-            <button class="modal-form-btn red-modal-form-btn" id="confirm-delete-selected-students-btn">Delete</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="modal-form hidden" id="delete-warn-student-form">
-        <div class="modal-warn form">
-          <h2 id="delete-warn-student-form-text"></h2>
-          <div class="button-group">
-            <button class="modal-form-btn gray-modal-form-btn" id="cancel-delete-warn-student-form-btn">Cancel</button>
-            <button class="modal-form-btn red-modal-form-btn" id="delete-delete-warn-student-form-btn">Delete</button>
-          </div>
-        </div>
+          <h1>Messages</h1>
       </div>
 
       <div id="loginModal">

@@ -33,6 +33,11 @@ class Router {
             else {
                 $this->sendResponse(['error' => 'Method Not Allowed'], 405);
             }
+        } elseif ($uri === '/login' && $method === 'POST') {
+            require_once __DIR__ . '/../controllers/AuthController.php';
+            $controller = new AuthController();
+            $controller->login();
+
         } else {
             $this->sendResponse(['error' => 'Not Found'], 404);
         }

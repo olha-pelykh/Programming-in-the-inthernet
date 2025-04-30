@@ -1,11 +1,20 @@
-/* jshint esversion: 6 */
 /* jshint esversion: 11 */
 
 const API_BASE_URL = "http://localhost/Programming-in-the-inthernet/api/students/";
+let IS_LOGGED_IN = false;
+
 let students = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-  updateStudentsOnServer();
+  //updateStudentsOnServer();
+  const isLoggedInStored = localStorage.getItem("isLoggedIn") === "true";
+  const storedUsername = localStorage.getItem("username");
+
+  if (isLoggedInStored && storedUsername) {
+    IS_LOGGED_IN = true;
+    profileNameButton.textContent = storedUsername;
+    updateStudentsOnServer(); // Завантажити студентів одразу
+  }
 });
 
 // DOM Elements
@@ -29,16 +38,56 @@ const confirmDeleteSelectedStudentsForm = document.getElementById("confirm-delet
 const confirmDeleteSelectedStudentsButton = document.getElementById("confirm-delete-selected-students-btn");
 const cancelDeleteSelectedStudentsButton = document.getElementById("cancel-delete-selected-students-btn");
 
-const deleteWarnStudentFormText = deleteWarnStudentForm.querySelector("h2");
+const deleteWarnStudentFormText = deleteWarnStudentForm ? deleteWarnStudentForm.querySelector("h2") : null;
 const deleteDeleteStudentFormButton = document.getElementById("delete-delete-warn-student-form-btn");
 const cancelDeleteStudentFormButton = document.getElementById("cancel-delete-warn-student-form-btn");
+
+const loginBtn = document.getElementById("loginBtn");
+const loginModal = document.getElementById("loginModal");
+const loginForm = document.getElementById("loginForm");
+const errorMsg = document.getElementById("errorMsg");
+
+const profileLogOutButton = document.getElementById("profile-log-out-btn");
+profileNameButton.onclick = () => {
+  if (profileNameButton.textContent == "Login") {
+    loginModal.style.display = "flex";
+  }
+};
+
+loginForm.onsubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(loginForm);
+
+  const response = await fetch("login.php", {
+    method: "POST",
+    body: formData,
+  });
+
+  const result = await response.json();
+
+  if (response.ok && result.status === "success") {
+    loginModal.style.display = "none";
+    profileNameButton.textContent = formData.get("login");
+    errorMsg.textContent = "";
+    updateStudentsOnServer();
+    IS_LOGGED_IN = true;
+
+    const username = formData.get("login");
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("username", username);
+  } else {
+    errorMsg.textContent = result.message || "Login failed";
+  }
+};
 
 let closeTimeout;
 
 // Notification button interactions
 notificationsButton.addEventListener("mouseenter", () => {
-  notificationsButton.classList.remove("fa-solid");
-  notificationsButton.classList.add("fa-regular");
+  if (IS_LOGGED_IN) {
+    notificationsButton.classList.remove("fa-solid");
+    notificationsButton.classList.add("fa-regular");
+  }
 });
 
 // Checkbox for selecting all students
@@ -63,18 +112,20 @@ if (selectAllCheckbox) {
 // Delete selected students functionality
 if (deleteSelectedStudentsButton) {
   deleteSelectedStudentsButton.addEventListener("click", () => {
-    const selectedStudents = getSelectedStudents();
-    if (selectedStudents.length === 0) {
-      showNotification("No selected items in table.");
-      return;
-    }
+    if (IS_LOGGED_IN) {
+      const selectedStudents = getSelectedStudents();
+      if (selectedStudents.length === 0) {
+        showNotification("No selected items in table.");
+        return;
+      }
 
-    const studentsList = selectedStudents.map((student) => `${student.name} ${student.surname}`).join(", ");
-    confirmDeleteSelectedStudentsForm.querySelector("h2").innerHTML = `
+      const studentsList = selectedStudents.map((student) => `${student.name} ${student.surname}`).join(", ");
+      confirmDeleteSelectedStudentsForm.querySelector("h2").innerHTML = `
       Delete ${selectedStudents.length} students?<br>
       <small>${studentsList}</small>
     `;
-    show(confirmDeleteSelectedStudentsForm);
+      show(confirmDeleteSelectedStudentsForm);
+    }
   });
 
   confirmDeleteSelectedStudentsButton.addEventListener("click", async () => {
@@ -102,9 +153,61 @@ if (deleteSelectedStudentsButton) {
   });
 }
 
+if (notificationsButton) {
+  notificationsButton.addEventListener("dblclick", () => {
+    if (IS_LOGGED_IN) {
+      notificationsButton.animate(
+        [
+          { transform: "rotate(0)" },
+          { transform: "rotate(-30deg)" },
+          { transform: "rotate(30deg)" },
+          { transform: "rotate(0)" },
+        ],
+        {
+          duration: 500,
+          iterations: 1,
+        }
+      );
+      setTimeout(() => {
+        window.location.href = "./messages.html";
+      }, 500);
+    }
+  });
+  notificationsButton.addEventListener("mouseover", () => {
+    if (IS_LOGGED_IN) {
+      show(notificationsForm);
+      if (closeTimeout) {
+        clearTimeout(closeTimeout);
+      }
+    }
+  });
+
+  notificationsButton.addEventListener("mouseleave", () => {
+    closeTimeout = setTimeout(() => {
+      if (!notificationsForm.matches(":hover")) {
+        hide(notificationsForm);
+      }
+    }, 300);
+  });
+
+  notificationsForm.addEventListener("mouseenter", () => {
+    show(notificationsForm);
+    if (closeTimeout) {
+      clearTimeout(closeTimeout);
+    }
+  });
+
+  notificationsForm.addEventListener("mouseleave", () => {
+    closeTimeout = setTimeout(() => {
+      hide(notificationsForm);
+    }, 300);
+  });
+}
+
 // Profile button interactions
 if (profileNameButton || profileIconButton) {
   const toggleModal = (event) => {
+    if (!IS_LOGGED_IN) return;
     const modal = document.getElementById("profile-form");
     const isProfileOpened = profileNameButton.dataset.isProfileOpened === "true";
 
@@ -134,15 +237,27 @@ if (profileNameButton || profileIconButton) {
     }
   };
 }
+//flidutoieudgf
+profileLogOutButton.addEventListener("click", () => {
+  profileNameButton.textContent = "Login";
+  IS_LOGGED_IN = false;
+  localStorage.removeItem("isLoggedIn");
+  localStorage.removeItem("username");
+  clearStudentsTable();
+  const modal = document.getElementById("profile-form");
+  hide(modal);
+});
 
 // Student form handling
 if (addStudentButton && addStudentForm) {
   addStudentButton.addEventListener("click", () => {
-    document.getElementById("student-id").value = "";
-    addStudentModalWrapper.querySelector("h2").textContent = "Add Student";
-    addStudentForm.reset();
-    clearFieldErrors();
-    show(addStudentModalWrapper);
+    if (IS_LOGGED_IN) {
+      document.getElementById("student-id").value = "";
+      addStudentModalWrapper.querySelector("h2").textContent = "Add Student";
+      addStudentForm.reset();
+      clearFieldErrors();
+      show(addStudentModalWrapper);
+    }
   });
 
   addStudentForm.addEventListener("submit", async (event) => {
@@ -431,10 +546,15 @@ function updateTable() {
   });
 }
 
+function clearStudentsTable() {
+  const tbody = studentsTable.querySelector("tbody");
+  tbody.innerHTML = "";
+}
+
 function handleApiError(error, defaultMessage = "An error occurred") {
   console.error("API Error:", error);
   const message = error.message || defaultMessage;
-  showNotification(message);
+  //showNotification(message);
   return null;
 }
 

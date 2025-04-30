@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="Olha Pelykh" content="My site for labotary work" />
+    <!-- icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+      integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer" />
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet" />
+    <!-- css -->
+    <link rel="stylesheet" href="./css/style.css" />
+    <!-- manifest  -->
+    <!-- <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#ffffff" />
+
+    <link rel="icon" href="icons/favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/android-chrome-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="icons/android-chrome-512x512.png" />
+    <link rel="manifest" href="manifest.json" /> -->
+    <title>Політехніка</title>
+  </head>
+  <body>
+    <section id="body">
+      <header id="header-main">
+        <nav id="header-nav">
+          <a href="./index.html" class="header-logo">CMS</a>
+          <div id="header-nav-items">
+            <div>
+              <i class="fa-solid fa-bell" id="notifications-button"> </i>
+            </div>
+            <div class="notifications-form hidden" id="notifications-form">
+              <div class="message">
+                <i class="fa-solid fa-circle-user user-icon"></i>
+                <div class="message-content">
+                  <p class="user-name">Iolanta Kolchyntseva</p>
+                  <p class="user-message">Hello! Have you already done labotary work?</p>
+                </div>
+              </div>
+
+              <div class="message">
+                <i class="fa-solid fa-circle-user user-icon"></i>
+                <div class="message-content">
+                  <p class="user-name">Artur Chernets</p>
+                  <p class="user-message">Have you seen Iolanta? I can't find her...</p>
+                </div>
+              </div>
+
+              <div class="message">
+                <i class="fa-solid fa-circle-user user-icon"></i>
+                <div class="message-content">
+                  <p class="user-name">Nastya Petrochenko</p>
+                  <p class="user-message">OMG!!! I am really hate TRUMP!</p>
+                </div>
+              </div>
+
+              <div class="message">
+                <i class="fa-solid fa-circle-user user-icon"></i>
+                <div class="message-content">
+                  <p class="user-name">Maryana Huchko</p>
+                  <p class="user-message">I lost my notes...</p>
+                </div>
+              </div>
+            </div>
+            <div class="user-info" id="user-info">
+              <a href="#">
+                <i class="fa-solid fa-circle-user" id="user-logo"></i>
+                <span id="user-name">Login</span>
+              </a>
+              <div class="profile-form hidden" id="profile-form">
+                <p>Profile settings</p>
+                <span id="profile-log-out-btn">Log out</span>
+              </div>
+            </div>
+          </div>
+        </nav>
+      </header>
+      <div id="main">
+        <aside>
+          <div id="div-aside">
+            <ul id="nav-list">
+              <li data-page="dashboard">
+                <a href="./dashboard.html"><b>Dashboard</b></a>
+              </li>
+              <li data-page="students">
+                <a href="./index.html">Students</a>
+              </li>
+              <li data-page="tasks"><a href="./tasks.html">Tasks</a></li>
+            </ul>
+          </div>
+        </aside>
+        <section class="content">
+          <h1>Dashboard</h1>
+      </div>
+
+      <div id="loginModal">
+        <div class="modal-content">
+          <h3>Вхід</h3>
+          <form id="loginForm">
+            <input type="text" name="login" placeholder="Логін" required />
+            <input type="password" name="password" placeholder="Пароль" required />
+            <button type="submit">Увійти</button>
+            <p id="errorMsg"></p>
+          </form>
+        </div>
+      </div>
+
+      <script src="./js/script.js"></script>
+    </section>
+    <!-- <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker
+            .register("/service-worker.js")
+            .then(function (registration) {
+              console.log("ServiceWorker registration successful with scope:", registration.scope);
+            })
+            .catch(function (error) {
+              console.log("ServiceWorker registration failed:", error);
+            });
+        });
+      }
+    </script> -->
+  </body>
+</html>
