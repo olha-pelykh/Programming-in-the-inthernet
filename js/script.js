@@ -7,6 +7,7 @@ let currentPage = 1;
 const rowsPerPage = 5;
 
 let students = [];
+let selectedStudentIds = new Set();
 
 document.addEventListener("DOMContentLoaded", () => {
   //updateStudentsOnServer();
@@ -103,19 +104,43 @@ notificationsButton.addEventListener("mouseenter", () => {
 if (selectAllCheckbox) {
   selectAllCheckbox.addEventListener("change", () => {
     const isChecked = selectAllCheckbox.checked;
-    const checkboxes = studentsTable.querySelectorAll("tbody input[type='checkbox']");
-    checkboxes.forEach((checkbox) => {
-      checkbox.checked = isChecked;
-    });
+
+    if (isChecked) {
+      // Add all student IDs to the selected set
+      students.forEach((student) => selectedStudentIds.add(student.id));
+    } else {
+      // Clear all selections
+      selectedStudentIds.clear();
+    }
+
+    // Update checkboxes on current page
+    updateCheckboxStates();
   });
 
   studentsTable.addEventListener("change", (event) => {
     if (event.target.type === "checkbox" && event.target.id !== "select-all") {
-      const checkboxes = studentsTable.querySelectorAll("tbody input[type='checkbox']");
-      const checkedCheckboxes = studentsTable.querySelectorAll("tbody input[type='checkbox']:checked");
-      selectAllCheckbox.checked = checkboxes.length === checkedCheckboxes.length;
+      const studentId = parseInt(event.target.dataset.id);
+      if (event.target.checked) {
+        selectedStudentIds.add(studentId);
+      } else {
+        selectedStudentIds.delete(studentId);
+      }
+
+      // Update select-all checkbox state
+      selectAllCheckbox.checked = selectedStudentIds.size === students.length;
     }
   });
+}
+
+function updateCheckboxStates() {
+  const checkboxes = studentsTable.querySelectorAll("tbody input[type='checkbox']");
+  checkboxes.forEach((checkbox) => {
+    const studentId = parseInt(checkbox.dataset.id);
+    checkbox.checked = selectedStudentIds.has(studentId);
+  });
+
+  // Update select-all checkbox state
+  selectAllCheckbox.checked = selectedStudentIds.size === students.length && students.length > 0;
 }
 
 // Delete selected students functionality
@@ -147,7 +172,7 @@ if (deleteSelectedStudentsButton) {
       await Promise.all(deletePromises);
 
       students = students.filter((student) => !selectedStudents.some((s) => s.id === student.id));
-
+      selectedStudents.forEach((student) => selectedStudentIds.delete(student.id));
       updateTable();
       selectAllCheckbox.checked = false;
       hide(confirmDeleteSelectedStudentsForm);
@@ -254,6 +279,7 @@ profileLogOutButton.addEventListener("click", () => {
   localStorage.removeItem("username");
   clearStudentsTable();
   const modal = document.getElementById("profile-form");
+  selectedStudentIds.clear();
   hide(modal);
 });
 
@@ -277,14 +303,37 @@ if (addStudentButton && addStudentForm) {
 
     if (validateStudentData(studentData)) {
       try {
-        if (studentId) {
-          await updateStudent(studentId, studentData);
-        } else {
-          await addStudent(studentData);
+        const response = await fetch(API_BASE_URL, {
+          method: studentId ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...studentData,
+            id: studentId || undefined,
+            status: "inactive", // або інший статус за замовчуванням
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          // Обробка помилок від сервера
+          throw new Error(result.error || "Failed to save student");
         }
+
+        // Якщо успішно - оновлюємо таблицю та закриваємо модальне вікно
         hide(addStudentModalWrapper);
+        updateStudentsOnServer();
+        showNotification("Student saved successfully");
       } catch (error) {
-        handleApiError(error, "Failed to save student");
+        // Виводимо помилку з сервера на фронтенд
+        showNotification(error.message);
+
+        // Якщо це помилка про дублікат, можна підсвітити відповідні поля
+        if (error.message.includes("Студент з таким ім'ям та датою народження вже існує")) {
+          highlightDuplicateFields();
+        }
       }
     } else {
       highlightInvalidFields(studentData);
@@ -293,6 +342,25 @@ if (addStudentButton && addStudentForm) {
 
   cancelAddStudentFormButton.addEventListener("click", () => hide(addStudentModalWrapper));
   closeAddStudentFormButton.addEventListener("click", () => hide(addStudentModalWrapper));
+}
+
+function highlightDuplicateFields() {
+  const nameField = addStudentForm.querySelector('[name="name"]');
+  const birthdayField = addStudentForm.querySelector('[name="birthday"]');
+
+  nameField.classList.add("error-field");
+  birthdayField.classList.add("error-field");
+
+  const errorElement = document.createElement("div");
+  errorElement.className = "error-message";
+  errorElement.textContent = "Студент з такими даними вже існує";
+  addStudentForm.appendChild(errorElement);
+
+  setTimeout(() => {
+    nameField.classList.remove("error-field");
+    birthdayField.classList.remove("error-field");
+    errorElement.remove();
+  }, 3000);
 }
 
 // Server communication functions
@@ -370,12 +438,7 @@ async function updateStudent(id, newData) {
 
 // Helper functions
 function getSelectedStudents() {
-  return Array.from(studentsTable.querySelectorAll('tbody input[type="checkbox"]:checked'))
-    .map((checkbox) => {
-      const studentId = parseInt(checkbox.dataset.id);
-      return students.find((student) => student.id === studentId);
-    })
-    .filter((student) => student !== undefined);
+  return students.filter((student) => selectedStudentIds.has(student.id));
 }
 
 function validateStudentData({ group, name, surname, gender, birthday }) {
@@ -566,6 +629,7 @@ function updateTable() {
     tbody.appendChild(tr);
   });
   createPaginationControls(totalPages);
+  updateCheckboxStates();
 }
 
 function createPaginationControls(totalPages) {

@@ -56,19 +56,35 @@ class StudentController {
             unset($input['id']);
         }
 
-        $student = new Student(
-            $input['id'] ?? null,
-            $input['group'],
-            $input['name'],
-            $input['surname'],
-            $input['gender'],
-            $input['birthday'],
-            $input['status']
+        $existingStudent = Student::findByNameSurnameAndBirthday(
+        $input['name'],
+        $input['surname'],
+        $input['birthday']
         );
 
-        $result = Student::save($student);
-        //file_put_contents(__DIR__ . '/../data/students.json', json_encode($result, JSON_PRETTY_PRINT));
-        $this->sendResponse($result);
+        if ($existingStudent && (!isset($input['id']) || $existingStudent->id != $input['id'])) {
+        $this->sendResponse([
+            'error' => 'A student with this name, surname and date of birth already exists'
+        ], 400);
+        return;
+        }
+
+        try {
+            $student = new Student(
+                $input['id'] ?? null,
+                $input['group'],
+                $input['name'],
+                $input['surname'],
+                $input['gender'],
+                $input['birthday'],
+                $input['status']
+            );
+
+            $result = Student::save($student);
+            $this->sendResponse($result);
+        } catch (Exception $e) {
+            $this->sendResponse(['error' => $e->getMessage()], 500);
+        }
     }
 
     private function sendResponse($data, $status = 200) {
@@ -92,8 +108,12 @@ class StudentController {
     }
 
     public function delete($id) {
-        $result = Student::delete($id);
-        $this->sendResponse(['message' => $result ? 'Deleted' : 'Not found']);
+        try {
+            $result = Student::delete($id);
+            $this->sendResponse(['success' => $result]);
+        } catch (Exception $e) {
+            $this->sendResponse(['error' => $e->getMessage()], 500);
+        }
     }
     
 }

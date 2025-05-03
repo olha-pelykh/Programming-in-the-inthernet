@@ -37,6 +37,26 @@ class Student
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public static function getAllStudents(): array
+    {
+        $pdo = Database::connect();
+        $stmt = $pdo->query("SELECT * FROM students");
+        
+        $students = [];
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $students[] = new Student(
+                $row['id'],
+                $row['group'],
+                $row['name'],
+                $row['surname'],
+                $row['gender'],
+                $row['birthday'],
+                $row['status']
+            );
+        }
+        return $students;
+    }
+
     public static function save($input): array
     {
         $pdo = Database::connect();
@@ -58,7 +78,7 @@ class Student
         }
 
         if ($student->id !== null) {
-            // Оновлення
+            // Update existing student
             $stmt = $pdo->prepare("
                 UPDATE students SET 
                     `group` = ?, 
@@ -79,7 +99,7 @@ class Student
                 $student->id
             ]);
         } else {
-            // Додавання
+            // Insert new student
             $stmt = $pdo->prepare("
                 INSERT INTO students (`group`, name, surname, gender, birthday, status) 
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -104,6 +124,36 @@ class Student
         $stmt = $pdo->prepare("DELETE FROM students WHERE id = ?");
         $stmt->execute([$id]);
         return $stmt->rowCount() > 0;
+    }
+    public static function findByNameSurnameAndBirthday(string $name, string $surname, string $birthday): ?Student
+    {
+    $pdo = Database::connect();
+    $stmt = $pdo->prepare("
+        SELECT * FROM students 
+        WHERE LOWER(name) = LOWER(:name) 
+        AND LOWER(surname) = LOWER(:surname)
+        AND birthday = :birthday
+    ");
+    $stmt->execute([
+        ':name' => $name,
+        ':surname' => $surname,
+        ':birthday' => $birthday
+    ]);
+    
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$row) {
+        return null;
+    }
+    
+    return new Student(
+        $row['id'],
+        $row['group'],
+        $row['name'],
+        $row['surname'],
+        $row['gender'],
+        $row['birthday'],
+        $row['status']
+    );
     }
 }
 
