@@ -768,3 +768,37 @@ section.students {
   width: 300px;
   text-align: center;
 }
+
+#pagination-container {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid var(--main-gray-color);
+  background-color: var(--main-white-color);
+  cursor: pointer;
+  border-radius: 12px;
+  min-width: 40px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--main-gray-color);
+  border-color: var(--main-gray-color);
+}
+
+.pagination-btn.active {
+  background-color: var(--main-green-color);
+  border-color: var(--main-green-color);
+  font-weight: bold;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

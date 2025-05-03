@@ -3,6 +3,9 @@
 const API_BASE_URL = "http://localhost/Programming-in-the-inthernet/api/students/";
 let IS_LOGGED_IN = false;
 
+let currentPage = 1;
+const rowsPerPage = 5;
+
 let students = [];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -42,6 +45,8 @@ const deleteWarnStudentFormText = deleteWarnStudentForm ? deleteWarnStudentForm.
 const deleteDeleteStudentFormButton = document.getElementById("delete-delete-warn-student-form-btn");
 const cancelDeleteStudentFormButton = document.getElementById("cancel-delete-warn-student-form-btn");
 
+const paginationContainer = document.getElementById("pagination-container");
+
 const loginBtn = document.getElementById("loginBtn");
 const loginModal = document.getElementById("loginModal");
 const loginForm = document.getElementById("loginForm");
@@ -67,6 +72,8 @@ loginForm.onsubmit = async (e) => {
 
   if (response.ok && result.status === "success") {
     loginModal.style.display = "none";
+    const modal = document.getElementById("profile-form");
+    hide(modal);
     profileNameButton.textContent = formData.get("login");
     errorMsg.textContent = "";
     updateStudentsOnServer();
@@ -75,6 +82,8 @@ loginForm.onsubmit = async (e) => {
     const username = formData.get("login");
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("username", username);
+
+    loginForm.reset();
   } else {
     errorMsg.textContent = result.message || "Login failed";
   }
@@ -481,7 +490,14 @@ function updateTable() {
   const tbody = studentsTable.querySelector("tbody");
   tbody.innerHTML = "";
 
-  students.forEach((student) => {
+  // Розрахунок пагінації
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const paginatedStudents = students.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(students.length / rowsPerPage);
+
+  // Заповнення таблиці даними для поточної сторінки
+  paginatedStudents.forEach((student) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td><input type="checkbox" data-id="${student.id}"></td>
@@ -503,6 +519,7 @@ function updateTable() {
       </td>
     `;
 
+    // Додаємо обробники подій (як у вашому оригінальному коді)
     tr.querySelector(".delete-btn").addEventListener("click", (event) => {
       const studentId = parseInt(event.target.closest(".delete-btn").dataset.id);
       const student = students.find((s) => s.id === studentId);
@@ -520,6 +537,10 @@ function updateTable() {
           if (!response.ok) throw new Error("Failed to delete student");
 
           students = students.filter((s) => s.id !== studentId);
+          // Після видалення перевіряємо, чи не порожня сторінка
+          if (paginatedStudents.length === 1 && currentPage > 1) {
+            currentPage--;
+          }
           updateTable();
           hide(deleteWarnStudentForm);
           showNotification("Student deleted successfully");
@@ -544,11 +565,88 @@ function updateTable() {
 
     tbody.appendChild(tr);
   });
+  createPaginationControls(totalPages);
+}
+
+function createPaginationControls(totalPages) {
+  paginationContainer.innerHTML = "";
+
+  if (totalPages <= 1) return; // Не показувати пагінацію, якщо всього одна сторінка
+
+  // Кнопка "Попередня"
+  const prevButton = document.createElement("button");
+  prevButton.innerHTML = "&laquo;";
+  prevButton.className = "pagination-btn";
+  prevButton.disabled = currentPage === 1;
+  prevButton.addEventListener("click", () => {
+    if (currentPage > 1) {
+      currentPage--;
+      updateTable();
+    }
+  });
+  paginationContainer.appendChild(prevButton);
+
+  // Нумерація сторінок
+  const maxVisiblePages = 5; // Максимальна кількість видимих кнопок сторінок
+  let startPage, endPage;
+
+  if (totalPages <= maxVisiblePages) {
+    startPage = 1;
+    endPage = totalPages;
+  } else {
+    const maxPagesBeforeCurrent = Math.floor(maxVisiblePages / 2);
+    const maxPagesAfterCurrent = Math.ceil(maxVisiblePages / 2) - 1;
+
+    if (currentPage <= maxPagesBeforeCurrent) {
+      startPage = 1;
+      endPage = maxVisiblePages;
+    } else if (currentPage + maxPagesAfterCurrent >= totalPages) {
+      startPage = totalPages - maxVisiblePages + 1;
+      endPage = totalPages;
+    } else {
+      startPage = currentPage - maxPagesBeforeCurrent;
+      endPage = currentPage + maxPagesAfterCurrent;
+    }
+  }
+
+  // Додавання кнопок сторінок
+  for (let i = startPage; i <= endPage; i++) {
+    const pageButton = document.createElement("button");
+    pageButton.textContent = i;
+    pageButton.className = "pagination-btn";
+    if (i === currentPage) {
+      pageButton.classList.add("active");
+    }
+    pageButton.addEventListener("click", () => {
+      currentPage = i;
+      updateTable();
+    });
+    paginationContainer.appendChild(pageButton);
+  }
+
+  // Кнопка "Наступна"
+  const nextButton = document.createElement("button");
+  nextButton.innerHTML = "&raquo;";
+  nextButton.className = "pagination-btn";
+  nextButton.disabled = currentPage === totalPages;
+  nextButton.addEventListener("click", () => {
+    if (currentPage < totalPages) {
+      currentPage++;
+      updateTable();
+    }
+  });
+  paginationContainer.appendChild(nextButton);
 }
 
 function clearStudentsTable() {
   const tbody = studentsTable.querySelector("tbody");
   tbody.innerHTML = "";
+  if (paginationContainer) {
+    paginationContainer.innerHTML = "";
+  }
+
+  // Скинути поточну сторінку
+  currentPage = 1;
 }
 
 function handleApiError(error, defaultMessage = "An error occurred") {
