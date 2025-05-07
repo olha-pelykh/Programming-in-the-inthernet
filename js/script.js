@@ -1,6 +1,6 @@
 /* jshint esversion: 11 */
 
-const API_BASE_URL = "http://localhost/Programming-in-the-inthernet/api/students/";
+const API_BASE_URL = "http://localhost/Programming-in-the-inthernet/api/students";
 let IS_LOGGED_IN = false;
 
 let currentPage = 1;
@@ -303,15 +303,17 @@ if (addStudentButton && addStudentForm) {
 
     if (validateStudentData(studentData)) {
       try {
-        const response = await fetch(API_BASE_URL, {
-          method: studentId ? "PUT" : "POST",
+        const url = studentId ? `${API_BASE_URL}/${studentId}` : API_BASE_URL;
+        const method = studentId ? "PUT" : "POST";
+
+        const response = await fetch(url, {
+          method: method,
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
             ...studentData,
-            id: studentId || undefined,
-            status: "inactive", // або інший статус за замовчуванням
+            status: "inactive",
           }),
         });
 
