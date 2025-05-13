@@ -1,6 +1,7 @@
 /* jshint esversion: 11 */
 
 const API_BASE_URL = "http://localhost/Programming-in-the-inthernet/api/students";
+const API_BASE_URL_NODE = "http://localhost:3000/api";
 let IS_LOGGED_IN = false;
 
 let currentPage = 1;
@@ -10,14 +11,13 @@ let students = [];
 let selectedStudentIds = new Set();
 
 document.addEventListener("DOMContentLoaded", () => {
-  //updateStudentsOnServer();
   const isLoggedInStored = localStorage.getItem("isLoggedIn") === "true";
   const storedUsername = localStorage.getItem("username");
 
   if (isLoggedInStored && storedUsername) {
     IS_LOGGED_IN = true;
     profileNameButton.textContent = storedUsername;
-    updateStudentsOnServer(); // Завантажити студентів одразу
+    updateStudentsOnServer(); // Load students immediately
   }
 });
 
@@ -54,41 +54,84 @@ const loginForm = document.getElementById("loginForm");
 const errorMsg = document.getElementById("errorMsg");
 
 const profileLogOutButton = document.getElementById("profile-log-out-btn");
+
 profileNameButton.onclick = () => {
   if (profileNameButton.textContent == "Login") {
     loginModal.style.display = "flex";
   }
 };
 
-loginForm.onsubmit = async (e) => {
-  e.preventDefault();
-  const formData = new FormData(loginForm);
-
-  const response = await fetch("login.php", {
-    method: "POST",
-    body: formData,
-  });
-
-  const result = await response.json();
-
-  if (response.ok && result.status === "success") {
-    loginModal.style.display = "none";
-    const modal = document.getElementById("profile-form");
+const closeOnClickOutside = (event) => {
+  const modal = document.getElementById("profile-form");
+  if (!modal.contains(event.target) && event.target !== profileNameButton && event.target !== profileIconButton) {
     hide(modal);
-    profileNameButton.textContent = formData.get("login");
-    errorMsg.textContent = "";
-    updateStudentsOnServer();
-    IS_LOGGED_IN = true;
-
-    const username = formData.get("login");
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("username", username);
-
-    loginForm.reset();
-  } else {
-    errorMsg.textContent = result.message || "Login failed";
+    profileNameButton.dataset.isProfileOpened = "false";
+    document.removeEventListener("click", closeOnClickOutside);
   }
 };
+
+loginForm.onsubmit = async (e) => {
+  e.preventDefault();
+
+  const formData = {
+    login: loginForm.querySelector('[name="login"]').value,
+    password: loginForm.querySelector('[name="password"]').value,
+  };
+
+  try {
+    const response = await fetch(`${API_BASE_URL_NODE}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    const result = await response.json();
+
+    if (response.ok) {
+      loginModal.style.display = "none";
+      const modal = document.getElementById("profile-form");
+      hide(modal);
+      profileNameButton.textContent = formData.login;
+      errorMsg.textContent = "";
+      updateStudentsOnServer();
+      IS_LOGGED_IN = true;
+
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("username", formData.login);
+
+      loginForm.reset();
+    } else {
+      errorMsg.textContent = result.message || "Невірний логін або пароль";
+    }
+  } catch (error) {
+    console.error("Login error:", error);
+    errorMsg.textContent = "Сталася помилка під час входу";
+  }
+};
+
+// // Profile button click handler
+// profileNameButton.onclick = (event) => {
+//   if (!IS_LOGGED_IN) {
+//     loginModal.style.display = "flex";
+//   } else {
+//     const modal = document.getElementById("profile-form");
+//     const isProfileOpened = profileNameButton.dataset.isProfileOpened === "true";
+//     if (isProfileOpened) {
+//       hide(modal);
+//       profileNameButton.dataset.isProfileOpened = "false";
+//       document.removeEventListener("click", closeOnClickOutside);
+//     } else {
+//       show(modal);
+//       profileNameButton.dataset.isProfileOpened = "true";
+//       setTimeout(() => {
+//         document.addEventListener("click", closeOnClickOutside);
+//       }, 0);
+//     }
+//     event.stopPropagation(); // Додано для запобігання закриттю модального вікна одразу після відкриття (якщо closeOnClickOutside прив'язаний до document)
+//   }
+// };
 
 let closeTimeout;
 
@@ -261,15 +304,6 @@ if (profileNameButton || profileIconButton) {
 
   profileNameButton.addEventListener("click", toggleModal);
   profileIconButton.addEventListener("click", toggleModal);
-
-  const closeOnClickOutside = (event) => {
-    const modal = document.getElementById("profile-form");
-    if (!modal.contains(event.target) && event.target !== profileNameButton && event.target !== profileIconButton) {
-      hide(modal);
-      profileNameButton.dataset.isProfileOpened = "false";
-      document.removeEventListener("click", closeOnClickOutside);
-    }
-  };
 }
 //flidutoieudgf
 profileLogOutButton.addEventListener("click", () => {
@@ -282,6 +316,20 @@ profileLogOutButton.addEventListener("click", () => {
   selectedStudentIds.clear();
   hide(modal);
 });
+
+// // Helper functions
+// function show(element) {
+//   element.classList.remove("hidden");
+// }
+
+// function hide(element) {
+//   element.classList.add("hidden");
+// }
+
+// function clearStudentsTable() {
+//   const tbody = document.querySelector("#students-table tbody");
+//   tbody.innerHTML = "";
+// }
 
 // Student form handling
 if (addStudentButton && addStudentForm) {
