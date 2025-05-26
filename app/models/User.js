@@ -1,3 +1,4 @@
+// app/models/User.js
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
@@ -5,6 +6,7 @@ const userSchema = new mongoose.Schema(
     login: {
       type: String,
       required: true,
+      unique: true, // Додайте це, якщо його немає
     },
     password: {
       type: String,

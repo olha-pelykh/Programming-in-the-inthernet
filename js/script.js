@@ -1,7 +1,7 @@
 /* jshint esversion: 11 */
 
 const API_BASE_URL = "http://localhost/Programming-in-the-inthernet/api/students";
-const API_BASE_URL_NODE = "http://localhost:3000/api";
+const API_BASE_URL_NODE = "http://localhost:3001/api";
 let IS_LOGGED_IN = false;
 
 let currentPage = 1;
