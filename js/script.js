@@ -99,7 +99,11 @@ loginForm.onsubmit = async (e) => {
       IS_LOGGED_IN = true;
 
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("username", formData.login);
+      localStorage.setItem("username", formData.login); // Додайте цей рядок для збереження userId
+      if (result.userId) {
+        // Перевірка, чи userId присутній у відповіді
+        localStorage.setItem("userId", result.userId);
+      }
 
       loginForm.reset();
     } else {

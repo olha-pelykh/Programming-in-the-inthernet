@@ -26,14 +26,17 @@ const io = new Server(server, {
 app.use("/api", authRoutes);
 
 // Роут для отримання всіх доступних кімнат
-// server.js
 app.get("/api/rooms", async (req, res) => {
   try {
-    const rooms = await Room.find({}).sort({ createdAt: -1 });
-    res.json(rooms); // Переконайтеся, що ви надсилаєте JSON відповідь
+    // Для отримання кімнат, в яких бере участь поточний користувач,
+    // вам потрібен буде механізм автентифікації на сервері (JWT).
+    // Поки що, для простоти, повертаємо всі кімнати, але в реальному додатку
+    // ви б фільтрували за `req.user.id`.
+    const rooms = await Room.find({}).sort({ createdAt: -1 }); // Сортуємо, щоб нові були зверху
+    res.json(rooms);
   } catch (error) {
-    console.error("Error fetching rooms:", error); // Логування помилки на сервері
-    res.status(500).json({ message: "Помилка сервера при отриманні кімнат", error: error.message });
+    console.error("Error fetching rooms:", error);
+    res.status(500).json({ message: "Помилка сервера при отриманні кімнат" });
   }
 });
 
@@ -90,7 +93,7 @@ mongoose
   )
   .then(() => {
     console.log("MongoDB connected");
-    server.listen(3001, () => console.log("Server running on port 3000"));
+    server.listen(3001, () => console.log("Server running on port 3001"));
   })
   .catch((err) => console.error(err));
 

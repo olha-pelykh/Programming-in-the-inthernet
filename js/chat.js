@@ -19,20 +19,6 @@ let currentUserId = null; // Зберігатимемо ID поточного к
 
 let allUsers = []; // Для зберігання всіх користувачів для вибору
 
-function showModal(modalElement) {
-  modalElement.style.display = "flex";
-  setTimeout(() => {
-    modalElement.classList.add("show");
-  }, 10);
-}
-
-function hideModal(modalElement) {
-  modalElement.classList.remove("show");
-  setTimeout(() => {
-    modalElement.style.display = "none";
-  }, 300);
-}
-
 // Функція для отримання поточного імені користувача з DOM
 function getCurrentUserNameFromDOM() {
   return userNameElement ? userNameElement.textContent.trim() : "Guest";
@@ -184,7 +170,6 @@ async function loadUsersForChatCreation() {
 
 // Обробники подій для модального вікна
 createRoomButton.addEventListener("click", () => {
-  showModal(createChatModal);
   newChatNameInput.value = "";
   usersListForChat.innerHTML = "";
   loadUsersForChatCreation();
