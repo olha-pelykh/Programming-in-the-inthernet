@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const notificationsButton = document.getElementById("notifications-button");
   const notificationsForm = document.getElementById("notifications-form");
   const notificationList = document.getElementById("notification-list");
-  const notificationCount = document.getElementById("notification-count");
+  //const notificationCount = document.getElementById("notification-count");
   const userNameElement = document.getElementById("user-name");
   const bellIcon = notificationsButton ? notificationsButton.querySelector(".fa-bell") : null; // Отримуємо іконку дзвіночка
   const clearNotificationsButton = document.getElementById("clear-notifications-button");
@@ -16,9 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!notificationsForm) console.error("notificationHandler.js: Element #notifications-form not found!");
   if (!notificationList)
     console.error("notificationHandler.js: ERROR: Element #notification-list not found! Messages cannot be displayed.");
-  if (!notificationCount) console.error("notificationHandler.js: Element #notification-count not found!");
+  // if (!notificationCount) console.error("notificationHandler.js: Element #notification-count not found!");
   if (!userNameElement) console.error("notificationHandler.js: Element #user-name not found!");
   if (!bellIcon) console.error("notificationHandler.js: Bell icon (.fa-bell) inside #notifications-button not found!");
+
+  let unreadNotifications = []; // Змінна для зберігання непрочитаних повідомлень
 
   function displayNotification(messageData, prepend = true) {
     if (!notificationList) {
@@ -31,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     notificationElement.dataset.roomId = messageData.room; // Додаємо ID кімнати
     notificationElement.innerHTML = `
       <strong>${messageData.author}:</strong> ${messageData.message}
-      <span class="notification-time">${new Date(messageData.time).toLocaleTimeString()}</span>
+      <span class="notification-time">${messageData.time}</span>
     `;
 
     notificationElement.addEventListener("click", () => {
@@ -65,7 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
         unreadNotifications = messages;
         notificationList.innerHTML = ""; // Очищаємо список перед завантаженням
         messages.forEach((msg) => displayNotification(msg, false)); // Додаємо до кінця
-        updateNotificationCount();
         console.log(`notificationHandler.js: Fetched ${messages.length} unread messages.`);
       } else {
         console.error("notificationHandler.js: Failed to fetch unread messages:", response.statusText);
@@ -79,45 +80,35 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("notificationHandler.js: Aborting notification handling due to missing #notification-list.");
     return; // Важливо: зупиняємо подальше виконання скрипта для сповіщень
   }
-  // --- КІНЕЦЬ ПЕРЕВІРКИ ---
-
-  let unreadNotifications = [];
 
   // Функція для оновлення вигляду дзвіночка
   function updateBellIcon() {
-    if (bellIcon) {
-      if (unreadNotifications > 0) {
-        bellIcon.classList.add("fa-solid");
-        bellIcon.classList.remove("fa-regular");
-      } else {
-        bellIcon.classList.add("fa-regular");
-        bellIcon.classList.remove("fa-solid");
-      }
-    }
+    bellIcon.classList.add("fa-solid");
+    bellIcon.classList.remove("fa-regular");
+  }
+  function updateNoBellIcon() {
+    bellIcon.classList.add("fa-regular");
+    bellIcon.classList.remove("fa-solid");
   }
 
   // Отримуємо нові непрочитані повідомлення для відображення як сповіщення
   socket.on("new_unread_message_notification", (messageData) => {
     console.log("notificationHandler.js: Received new unread message notification:", messageData);
     displayNotification(messageData);
-  });
-
-  socket.on("notification_count_update", (count) => {
-    if (notificationCount) {
-      notificationCount.textContent = count > 0 ? count : "0";
-      notificationCount.style.display = count > 0 ? "block" : "none";
-    }
+    updateBellIcon();
   });
 
   // Отримуємо підтвердження про очищення повідомлень з сервера
   socket.on("notifications_cleared", () => {
     console.log("notificationHandler.js: Server confirmed notifications cleared.");
     clearAllNotificationsDisplayed();
+    updateNoBellIcon();
   });
 
   if (clearNotificationsButton) {
     clearNotificationsButton.addEventListener("click", () => {
       clearAllNotificationsDisplayed();
+      updateNoBellIcon();
       const currentUserName = localStorage.getItem("username");
       if (currentUserName) {
         socket.emit("clear_all_unread_messages", { recipient: currentUserName });
@@ -127,8 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function clearAllNotificationsDisplayed() {
     if (notificationList) {
-      notificationList.innerHTML = ""; // Очищаємо DOM
-      updateNotificationCount(); // Оновлюємо лічильник до 0
+      notificationList.innerHTML = "";
     }
   }
 
@@ -144,7 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
         notificationList.querySelectorAll(".notification-item").forEach((item) => {
           item.classList.remove("unread");
         });
-        updateNotificationCount(); // Оновлюємо лічильник
+        updateNoBellIcon(); // Оновлюємо лічильник
       }
     });
 
@@ -166,6 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
       notificationTimeout = setTimeout(() => {
         hide(notificationsForm);
         clearAllNotificationsDisplayed(); // Видаляємо всі повідомлення з DOM при приховуванні
+        updateNoBellIcon();
       }, 300);
     });
   }
@@ -187,7 +178,6 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("All notifications marked as read.");
         unreadNotifications = []; // Clear local array
         notificationList.innerHTML = ""; // Clear displayed notifications
-        updateNotificationCount();
       } else {
         console.error("Failed to mark notifications as read.");
       }
@@ -245,7 +235,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // НОВИЙ ОБРОБНИК ПОДІЇ НАВЕДЕННЯ КУРСОРУ НА ФОРМУ СПОВІЩЕНЬ
   if (notificationsForm) {
     notificationsForm.addEventListener("mouseleave", () => {
       // При наведенні курсору на форму сповіщень
@@ -253,28 +242,10 @@ document.addEventListener("DOMContentLoaded", () => {
         // Обнуляємо, тільки якщо є непрочитані
         console.log("notificationHandler.js: Mouse entered notifications form. Clearing unread count and messages.");
         unreadNotifications = 0;
-        updateNotificationCount(); // Оновлює лічильник та дзвіночок
+        updateNoBellIcon();
         notificationList.innerHTML = ""; // <--- Це очищає при НАВЕДЕННІ
       }
     });
-  }
-
-  // Функція для оновлення лічильника сповіщень
-  function updateNotificationCount() {
-    if (notificationCount) {
-      notificationCount.textContent = unreadNotifications.length;
-      if (unreadNotifications.length > 0) {
-        notificationCount.classList.add("has-notifications");
-        if (bellIcon) {
-          bellIcon.classList.add("has-notifications-animation");
-        }
-      } else {
-        notificationCount.classList.remove("has-notifications");
-        if (bellIcon) {
-          bellIcon.classList.remove("has-notifications-animation");
-        }
-      }
-    }
   }
 
   async function loadUnreadMessages() {
@@ -283,7 +254,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!username || username === "Guest") {
       console.log("notificationHandler.js: User not logged in or is Guest, skipping unread messages load.");
-      updateNotificationCount(0);
       notificationList.innerHTML = "<li>You are not logged in.</li>";
       return;
     }
@@ -300,16 +270,15 @@ document.addEventListener("DOMContentLoaded", () => {
       notificationList.innerHTML = ""; // Очищаємо список перед відображенням
       if (unreadMessages.length === 0) {
         notificationList.innerHTML = "<li>No unread messages.</li>";
+        updateNoBellIcon();
       } else {
         unreadMessages.forEach((msg) => {
           displayNotification(msg);
+          updateBellIcon();
         });
       }
-      updateNotificationCount(unreadMessages.length);
     } catch (error) {
       console.error("notificationHandler.js: Error loading unread messages:", error);
-      notificationList.innerHTML = "<li>Error loading unread messages. Please try again.</li>";
-      updateNotificationCount(0);
     }
   }
 
@@ -333,11 +302,13 @@ document.addEventListener("DOMContentLoaded", () => {
   socket.on("receive_message", (data) => {
     console.log("notificationHandler.js: Received message on dashboard:", data);
     loadUnreadMessages();
+    updateBellIcon();
   });
 
   socket.on("unread_count_updated", () => {
     console.log("notificationHandler.js: Unread count updated by server, reloading unread messages.");
     loadUnreadMessages();
+    //updateBellIcon();
   });
 
   // Функція для додавання нового сповіщення до форми
@@ -400,8 +371,4 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = "./index.html";
     });
   }
-
-  // Ініціалізуємо стан дзвіночка при завантаженні сторінки
-  updateBellIcon();
-  updateNotificationCount();
 });

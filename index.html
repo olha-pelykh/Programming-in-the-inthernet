@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet" />
     <!-- css -->
     <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/messages.css" />
     <!-- manifest  -->
     <!-- <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#ffffff" />
@@ -34,13 +35,17 @@
         <nav id="header-nav">
           <a href="./index.html" class="header-logo">CMS</a>
           <div id="header-nav-items">
-            <div>
-              <i class="fa-regular fa-bell" id="notifications-button"> </i>
-              <span id="notification-count" class="notification-count hidden">0</span>
+            <div class="notification-container">
+              <button id="notifications-button" class="notifications-button icon-button">
+                <i class="fa-regular fa-bell" id="notifications-button"> </i>
+                <!-- <span id="notification-count" class="notification-count notification-badge">0</span> -->
+              </button>
             </div>
-            <div id="notifications-form" class="notifications-form hidden">
-              <div id="notification-list"></div>
-            </div>
+            <form id="notifications-form" class="notifications-form notifications-popup hidden">
+              <h4>Notifications</h4>
+              <ul id="notification-list" class="notification-list"></ul>
+              <button type="button" id="clear-notifications-button">Clear all</button>
+            </form>
             <div class="user-info" id="user-info">
               <a href="#">
                 <i class="fa-solid fa-circle-user" id="user-logo"></i>

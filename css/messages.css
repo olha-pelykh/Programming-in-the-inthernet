@@ -512,3 +512,84 @@
   text-decoration: none;
   cursor: pointer;
 }
+
+/* Контейнер для сповіщень */
+.notification-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Кнопка дзвіночка */
+.notifications-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #444;
+  position: relative;
+}
+
+.notifications-button:hover {
+  color: #ff6b81;
+}
+
+/* Випадаючий блок сповіщень */
+.notifications-form {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  width: 280px;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  padding: 1rem;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.notifications-form h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* Список повідомлень */
+.notification-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.notification-list li {
+  background-color: #f6f6f6;
+  margin-bottom: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #333;
+  transition: background-color 0.2s ease;
+}
+
+.notification-list li:hover {
+  background-color: #eaeaea;
+}
+
+/* Кнопка "Clear all" */
+#clear-notifications-button {
+  margin-top: 0.8rem;
+  width: 100%;
+  background-color: #ff6b81;
+  color: white;
+  border: none;
+  padding: 0.5rem 0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#clear-notifications-button:hover {
+  background-color: #e95c71;
+}

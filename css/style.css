@@ -84,6 +84,8 @@ main {
 /*Notifications*/
 #notifications-button {
   color: var(--main-text-color);
+  background-color: var(--main-green-color);
+  border: none;
 }
 
 .notifications-form {
