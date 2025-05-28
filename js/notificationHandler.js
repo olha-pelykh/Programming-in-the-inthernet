@@ -11,7 +11,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const userNameElement = document.getElementById("user-name");
   const bellIcon = notificationsButton ? notificationsButton.querySelector(".fa-bell") : null; // Отримуємо іконку дзвіночка
 
-  // --- ПОТУЖНА ПЕРЕВІРКА НАЯВНОСТІ DOM ЕЛЕМЕНТІВ ---
   if (!notificationsButton) console.error("notificationHandler.js: Element #notifications-button not found!");
   if (!notificationsForm) console.error("notificationHandler.js: Element #notifications-form not found!");
   if (!notificationList)
@@ -20,7 +19,22 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!userNameElement) console.error("notificationHandler.js: Element #user-name not found!");
   if (!bellIcon) console.error("notificationHandler.js: Bell icon (.fa-bell) inside #notifications-button not found!");
 
-  // Якщо основний елемент для списку сповіщень відсутній, зупиняємо виконання для сповіщень
+  function displayNotification(messageData) {
+    if (!notificationList) {
+      console.error("notificationHandler.js: notificationList is null, cannot display notification.");
+      return;
+    }
+    const notificationItem = document.createElement("div");
+    notificationItem.classList.add("notification-item");
+    // Можете додати більше інформації з messageData, якщо потрібно
+    notificationItem.innerHTML = `
+            <strong>${messageData.author}</strong>
+            <p>${messageData.message}</p>
+            <small>${messageData.time} in ${messageData.room}</small>
+        `;
+    notificationList.prepend(notificationItem); // Додаємо на початок списку
+  }
+
   if (!notificationList) {
     console.error("notificationHandler.js: Aborting notification handling due to missing #notification-list.");
     return; // Важливо: зупиняємо подальше виконання скрипта для сповіщень
@@ -111,38 +125,82 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Функція для оновлення лічильника сповіщень
-  function updateNotificationCount() {
+  function updateNotificationCount(count) {
     if (notificationCount) {
-      if (unreadNotifications > 0) {
-        notificationCount.textContent = unreadNotifications;
-        notificationCount.classList.remove("hidden");
+      notificationCount.textContent = count > 0 ? count : "";
+      notificationCount.style.display = count > 0 ? "block" : "none";
+    }
+    if (bellIcon) {
+      if (count > 0) {
+        bellIcon.classList.add("has-notifications"); // Додайте клас для стилізації
       } else {
-        notificationCount.classList.add("hidden");
+        bellIcon.classList.remove("has-notifications");
       }
     }
-    updateBellIcon();
+  }
+
+  async function loadUnreadMessages() {
+    const username = localStorage.getItem("username");
+    console.log("notificationHandler.js: Loading unread messages for user:", username);
+
+    if (!username || username === "Guest") {
+      console.log("notificationHandler.js: User not logged in or is Guest, skipping unread messages load.");
+      updateNotificationCount(0);
+      notificationList.innerHTML = "<li>You are not logged in.</li>";
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/unread-messages/${username}`);
+      if (!response.ok) {
+        // Логуємо деталі помилки HTTP
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+      }
+      const unreadMessages = await response.json();
+      console.log("notificationHandler.js: Fetched unread messages:", unreadMessages);
+
+      notificationList.innerHTML = ""; // Очищаємо список перед відображенням
+      if (unreadMessages.length === 0) {
+        notificationList.innerHTML = "<li>No unread messages.</li>";
+      } else {
+        unreadMessages.forEach((msg) => {
+          displayNotification(msg);
+        });
+      }
+      updateNotificationCount(unreadMessages.length);
+    } catch (error) {
+      console.error("notificationHandler.js: Error loading unread messages:", error);
+      notificationList.innerHTML = "<li>Error loading unread messages. Please try again.</li>";
+      updateNotificationCount(0);
+    }
+  }
+
+  // При завантаженні сторінки завантажуємо непрочитані повідомлення
+  loadUnreadMessages();
+
+  // Слухач подій для кнопки сповіщень
+  if (notificationsButton) {
+    notificationsButton.addEventListener("click", () => {
+      if (notificationsForm) {
+        notificationsForm.classList.toggle("show");
+        if (notificationsForm.classList.contains("show")) {
+          // Якщо форма відкривається, оновити повідомлення (можливо, прочитати їх)
+          loadUnreadMessages(); // Завантажуємо їх знову при відкритті, щоб показати актуальні
+        }
+      }
+    });
   }
 
   // Слухаємо подію "receive_message" від сервера
   socket.on("receive_message", (data) => {
     console.log("notificationHandler.js: Received message on dashboard:", data);
-    const currentUserName = getCurrentUserNameFromDOM();
+    loadUnreadMessages();
+  });
 
-    if (data.author !== currentUserName) {
-      console.log(
-        `notificationHandler.js: Adding notification: ${data.author} - ${data.message} for room: ${data.room}`
-      ); // Логуємо кімнату
-      // Передаємо data.room у addNotification
-      addNotification(data.author, data.message, data.room);
-      if (notificationsForm && notificationsForm.classList.contains("hidden")) {
-        unreadNotifications++;
-        updateNotificationCount();
-      } else if (notificationsForm && !notificationsForm.classList.contains("hidden")) {
-        console.log("notificationHandler.js: Notifications form is open, not incrementing unread count.");
-      }
-    } else {
-      console.log(`notificationHandler.js: Message from current user (${data.author}), not showing as notification.`);
-    }
+  socket.on("unread_count_updated", () => {
+    console.log("notificationHandler.js: Unread count updated by server, reloading unread messages.");
+    loadUnreadMessages();
   });
 
   // Функція для додавання нового сповіщення до форми
@@ -184,19 +242,11 @@ document.addEventListener("DOMContentLoaded", () => {
       userNameElement.textContent = storedUsername;
     }
     const roomToJoin = "general_chat";
-    if (storedUserId) {
-      socket.emit("join_room", { room: roomToJoin, userId: storedUserId });
-      console.log(
-        `notificationHandler.js: Dashboard: Attempting to join room: ${roomToJoin} with user ID: ${storedUserId}`
-      );
-    } else {
-      console.warn(
-        "notificationHandler.js: Dashboard: User name found but userId is missing. Joining room without userId."
-      );
-      socket.emit("join_room", { room: roomToJoin, userId: "unknown" });
-    }
+    // Передаємо username, оскільки recipient в UnreadMessage - це login
+    socket.emit("join_room", { room: roomToJoin, username: storedUsername }); // <<<< ВИПРАВЛЕНО ТУТ
+    console.log(`notificationHandler.js: Attempting to join room: ${roomToJoin} with username: ${storedUsername}`);
   } else {
-    console.log("notificationHandler.js: Dashboard: User not logged in, not attempting to join room.");
+    console.log("notificationHandler.js: User not logged in, not attempting to join room.");
   }
 
   // Логіка для виходу з системи
