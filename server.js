@@ -132,12 +132,18 @@ io.on("connection", (socket) => {
 
     // Очистка непрочитаних повідомлень для поточного користувача, який приєднався до кімнати
     if (data.username) {
-      // Використовуємо username, щоб відповідати полю recipient
+      socket.join(data.username);
+      console.log(`User ${data.username} joined personal notification room: ${data.username}`);
+    } else {
+      console.warn(`join_room: username not provided for socket ${socket.id}, cannot join personal notification room.`);
+    }
+
+    // Очистка непрочитаних повідомлень для поточного користувача, який приєднався до кімнати
+    if (data.username) {
       try {
         const deleteResult = await UnreadMessage.deleteMany({ room: data.room, recipient: data.username });
         console.log(`Cleared ${deleteResult.deletedCount} unread messages for ${data.username} in room ${data.room}`);
-        // Можливо, повідомити клієнта про оновлення лічильника непрочитаних повідомлень
-        io.to(socket.id).emit("unread_count_updated");
+        io.to(socket.id).emit("unread_count_updated"); // Повідомляємо клієнта про оновлення
       } catch (error) {
         console.error("Error clearing unread messages on join_room:", error);
       }
@@ -170,23 +176,20 @@ io.on("connection", (socket) => {
       console.log(`Searching for room "${data.room}". Found:`, room ? "Yes" : "No");
 
       if (room && room.participants && room.participants.length > 0) {
-        console.log(
-          "Room participants found:",
-          room.participants.map((p) => p.login)
-        ); // Лог логінів учасників
         for (const participant of room.participants) {
-          // Перевіряємо, чи учасник існує і має логін
           if (participant && participant.login && participant.login !== data.author) {
             const newUnreadMessage = new UnreadMessage({
               room: data.room,
               author: data.author,
               message: data.message,
               time: data.time,
-              recipient: participant.login, // Зберігаємо логін одержувача
+              recipient: participant.login,
             });
             try {
               await newUnreadMessage.save();
               console.log(`Saved unread message for recipient: ${participant.login}`);
+              io.to(participant.login).emit("new_unread_message_notification", newUnreadMessage);
+              console.log(`Emitted 'new_unread_message_notification' to personal room: ${participant.login}`);
             } catch (saveError) {
               console.error(`Error saving unread message for ${participant.login}:`, saveError);
             }
@@ -202,6 +205,7 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error("Error processing unread messages for send_message:", error);
     }
+    io.to(data.room).emit("receive_message", data);
   });
 
   socket.on("get_messages", async (room) => {

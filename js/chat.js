@@ -335,8 +335,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // currentRoom. В інших місцях використовується `getCurrentUserNameFromDOM()`.
 
   if (currentUserId) {
-    socket.emit("join_room", { room: currentRoom, userId: currentUserId });
-    console.log(`Attempting to join room: ${currentRoom} with user ID: ${currentUserId}`);
+    const currentUsername = getCurrentUserNameFromDOM(); // Отримайте поточний логін користувача
+    socket.emit("join_room", { room: currentRoom, username: currentUsername }); // ДОДАЙТЕ username сюди
+    console.log(`chat.js: Attempting to join room: ${currentRoom} with username: ${currentUsername}`);
     // Завантажуємо історію повідомлень для цієї кімнати
     socket.emit("get_messages", currentRoom);
   } else {
