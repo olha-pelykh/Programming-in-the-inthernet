@@ -96,17 +96,77 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Отримуємо нові непрочитані повідомлення для відображення як сповіщення
   socket.on("new_unread_message_notification", (messageData) => {
     console.log("notificationHandler.js: Received new unread message notification:", messageData);
-    // Add the new message to our unreadNotifications array
-    unreadNotifications.push(messageData);
-    displayNotification(messageData); // Display the new message
-    updateNotificationCount();
+    displayNotification(messageData);
+  });
+
+  socket.on("notification_count_update", (count) => {
+    if (notificationCount) {
+      notificationCount.textContent = count > 0 ? count : "0";
+      notificationCount.style.display = count > 0 ? "block" : "none";
+    }
+  });
+
+  // Отримуємо підтвердження про очищення повідомлень з сервера
+  socket.on("notifications_cleared", () => {
+    console.log("notificationHandler.js: Server confirmed notifications cleared.");
+    clearAllNotificationsDisplayed();
   });
 
   if (clearNotificationsButton) {
-    clearNotificationsButton.addEventListener("click", async () => {
-      await markAllNotificationsAsRead();
+    clearNotificationsButton.addEventListener("click", () => {
+      clearAllNotificationsDisplayed();
+      const currentUserName = localStorage.getItem("username");
+      if (currentUserName) {
+        socket.emit("clear_all_unread_messages", { recipient: currentUserName });
+      }
+    });
+  }
+
+  function clearAllNotificationsDisplayed() {
+    if (notificationList) {
+      notificationList.innerHTML = ""; // Очищаємо DOM
+      updateNotificationCount(); // Оновлюємо лічильник до 0
+    }
+  }
+
+  if (notificationsButton && notificationsForm) {
+    notificationsButton.addEventListener("mouseenter", () => {
+      clearTimeout(notificationTimeout); // Очищаємо таймер, якщо він був встановлений
+      show(notificationsForm);
+      // При відкритті вікна сповіщень, позначаємо всі поточні як прочитані
+      const currentUserName = localStorage.getItem("username");
+      if (currentUserName && notificationList.children.length > 0) {
+        socket.emit("mark_all_notifications_as_read", { recipient: currentUserName });
+        // Візуально позначаємо всі повідомлення як прочитані
+        notificationList.querySelectorAll(".notification-item").forEach((item) => {
+          item.classList.remove("unread");
+        });
+        updateNotificationCount(); // Оновлюємо лічильник
+      }
+    });
+
+    // Приховати форму сповіщень, коли курсор покидає кнопку або форму
+    notificationsButton.addEventListener("mouseleave", () => {
+      notificationTimeout = setTimeout(() => {
+        hide(notificationsForm);
+        clearAllNotificationsDisplayed(); // Видаляємо всі повідомлення з DOM при приховуванні
+      }, 300); // Затримка 300мс, щоб дати час курсору перейти на форму
+    });
+
+    // Запобігти приховуванню, якщо курсор знаходиться на формі
+    notificationsForm.addEventListener("mouseenter", () => {
+      clearTimeout(notificationTimeout);
+    });
+
+    // Приховати форму, коли курсор покидає форму
+    notificationsForm.addEventListener("mouseleave", () => {
+      notificationTimeout = setTimeout(() => {
+        hide(notificationsForm);
+        clearAllNotificationsDisplayed(); // Видаляємо всі повідомлення з DOM при приховуванні
+      }, 300);
     });
   }
 
