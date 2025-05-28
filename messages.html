@@ -14,6 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Kumbh+Sans&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="./css/messages.css" />
     <title>Політехніка</title>
   </head>
   <body>
@@ -23,40 +24,7 @@
           <a href="./index.html" class="header-logo">CMS</a>
           <div id="header-nav-items">
             <div>
-              <i class="fa-solid fa-bell" id="notifications-button"> </i>
-            </div>
-            <div class="notifications-form hidden" id="notifications-form">
-              <div class="message">
-                <i class="fa-solid fa-circle-user user-icon"></i>
-                <div class="message-content">
-                  <p class="user-name">Iolanta Kolchyntseva</p>
-                  <p class="user-message">Hello! Have you already done labotary work?</p>
-                </div>
-              </div>
-
-              <div class="message">
-                <i class="fa-solid fa-circle-user user-icon"></i>
-                <div class="message-content">
-                  <p class="user-name">Artur Chernets</p>
-                  <p class="user-message">Have you seen Iolanta? I can't find her...</p>
-                </div>
-              </div>
-
-              <div class="message">
-                <i class="fa-solid fa-circle-user user-icon"></i>
-                <div class="message-content">
-                  <p class="user-name">Nastya Petrochenko</p>
-                  <p class="user-message">OMG!!! I am really hate TRUMP!</p>
-                </div>
-              </div>
-
-              <div class="message">
-                <i class="fa-solid fa-circle-user user-icon"></i>
-                <div class="message-content">
-                  <p class="user-name">Maryana Huchko</p>
-                  <p class="user-message">I lost my notes...</p>
-                </div>
-              </div>
+              <i class="fa-regular fa-bell" id="notifications-button"> </i>
             </div>
             <div class="user-info" id="user-info">
               <a href="#">
@@ -87,45 +55,45 @@
         </aside>
         <section class="content-wrapper">
           <div class="chat-list-sidebar">
-            <h2>Ваші чати</h2>
+            <h2>Your chats</h2>
             <ul id="chat-list"></ul>
-            <button id="create-room-button">Створити новий чат</button>
+            <button id="create-room-button">Create new chat</button>
           </div>
           <section class="content">
             <div class="chat-container">
               <div class="chat-window" id="chat-window"></div>
               <div class="chat-input">
-                <input type="text" id="message-input" placeholder="Напишіть повідомлення..." />
-                <button id="send-button">Відправити</button>
+                <input type="text" id="message-input" placeholder="Enter new message..." />
+                <button id="send-button">sent</button>
               </div>
             </div>
           </section>
         </section>
       </div>
 
-      <div id="createChatModal" class="modal">
+      <div id="createChatModal">
         <div class="modal-content">
           <span class="close-button" id="closeCreateChatModal">&times;</span>
-          <h3>Створити новий чат</h3>
+          <h3>Create new chat</h3>
           <div class="form-group">
-            <label for="new-chat-name">Назва чату:</label>
-            <input type="text" id="new-chat-name" placeholder="Введіть назву чату" required />
+            <label for="new-chat-name">Chat name:</label>
+            <input type="text" id="new-chat-name" placeholder="Enter chat's name" required />
           </div>
           <div class="form-group">
-            <label>Додати учасників:</label>
+            <label>Add members:</label>
             <div id="users-list-for-chat"></div>
           </div>
-          <button id="submit-create-chat">Створити чат</button>
+          <button id="submit-create-chat">Create chat</button>
         </div>
       </div>
 
       <div id="loginModal">
         <div class="modal-content">
-          <h3>Вхід</h3>
+          <h3>Exit</h3>
           <form id="loginForm">
             <input type="text" name="login" placeholder="Логін" required />
             <input type="password" name="password" placeholder="Пароль" required />
-            <button type="submit">Увійти</button>
+            <button type="submit">Log in</button>
             <p id="errorMsg"></p>
           </form>
         </div>

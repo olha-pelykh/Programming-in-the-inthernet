@@ -93,7 +93,7 @@ mongoose
   )
   .then(() => {
     console.log("MongoDB connected");
-    server.listen(3001, () => console.log("Server running on port 3001"));
+    server.listen(3000, () => console.log("Server running on port 3000"));
   })
   .catch((err) => console.error(err));
 
@@ -131,10 +131,10 @@ io.on("connection", (socket) => {
 
   socket.on("get_messages", async (room) => {
     try {
-      const messages = await Message.find({ room }).sort({ time: 1 });
-      socket.emit("previous_messages", messages);
+      const messages = await Message.find({ room }).sort({ time: 1 }); // Сортуємо за часом
+      socket.emit("messages_history", messages);
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      console.error(`Error fetching messages for room ${room}:`, error);
     }
   });
 

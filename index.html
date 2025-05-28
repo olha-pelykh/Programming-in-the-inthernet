@@ -35,40 +35,11 @@
           <a href="./index.html" class="header-logo">CMS</a>
           <div id="header-nav-items">
             <div>
-              <i class="fa-solid fa-bell" id="notifications-button"> </i>
+              <i class="fa-regular fa-bell" id="notifications-button"> </i>
+              <span id="notification-count" class="notification-count hidden">0</span>
             </div>
-            <div class="notifications-form hidden" id="notifications-form">
-              <div class="message">
-                <i class="fa-solid fa-circle-user user-icon"></i>
-                <div class="message-content">
-                  <p class="user-name">Iolanta Kolchyntseva</p>
-                  <p class="user-message">Hello! Have you already done labotary work?</p>
-                </div>
-              </div>
-
-              <div class="message">
-                <i class="fa-solid fa-circle-user user-icon"></i>
-                <div class="message-content">
-                  <p class="user-name">Artur Chernets</p>
-                  <p class="user-message">Have you seen Iolanta? I can't find her...</p>
-                </div>
-              </div>
-
-              <div class="message">
-                <i class="fa-solid fa-circle-user user-icon"></i>
-                <div class="message-content">
-                  <p class="user-name">Nastya Petrochenko</p>
-                  <p class="user-message">OMG!!! I am really hate TRUMP!</p>
-                </div>
-              </div>
-
-              <div class="message">
-                <i class="fa-solid fa-circle-user user-icon"></i>
-                <div class="message-content">
-                  <p class="user-name">Maryana Huchko</p>
-                  <p class="user-message">I lost my notes...</p>
-                </div>
-              </div>
+            <div id="notifications-form" class="notifications-form hidden">
+              <div id="notification-list"></div>
             </div>
             <div class="user-info" id="user-info">
               <a href="#">
@@ -222,7 +193,9 @@
         </div>
       </div>
 
+      <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
       <script src="./js/script.js"></script>
+      <script src="./js/notificationHandler.js"></script>
     </section>
     <!-- <script>
       if ("serviceWorker" in navigator) {

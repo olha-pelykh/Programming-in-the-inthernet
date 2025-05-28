@@ -1,7 +1,7 @@
 /* jshint esversion: 11 */
 
 const API_BASE_URL = "http://localhost/Programming-in-the-inthernet/api/students";
-const API_BASE_URL_NODE = "http://localhost:3001/api";
+const API_BASE_URL_NODE = "http://localhost:3000/api";
 let IS_LOGGED_IN = false;
 
 let currentPage = 1;
@@ -18,6 +18,15 @@ document.addEventListener("DOMContentLoaded", () => {
     IS_LOGGED_IN = true;
     profileNameButton.textContent = storedUsername;
     updateStudentsOnServer(); // Load students immediately
+  }
+
+  const selectedRoomFromDashboard = localStorage.getItem("selectedChatRoom");
+  if (selectedRoomFromDashboard) {
+    currentRoom = selectedRoomFromDashboard; // Встановлюємо цю кімнату як поточну
+    localStorage.removeItem("selectedChatRoom"); // Очищаємо, щоб не переходити щоразу
+    console.log(`chat.js: Initializing with selected room from dashboard: ${currentRoom}`);
+  } else {
+    console.log(`chat.js: No specific room selected, defaulting to: ${currentRoom}`);
   }
 });
 

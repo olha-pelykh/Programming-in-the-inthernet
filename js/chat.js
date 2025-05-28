@@ -1,4 +1,4 @@
-const socket = io("http://localhost:3001");
+const socket = io("http://localhost:3000");
 
 const messageInput = document.getElementById("message-input");
 const sendButton = document.getElementById("send-button");
@@ -51,6 +51,14 @@ function displayMessage(author, message, time, isCurrentUser = false) {
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
+function show(modalWindow) {
+  modalWindow?.classList.remove("hidden");
+}
+
+function hide(modalWindow) {
+  modalWindow?.classList.add("hidden");
+}
+
 // Функція для завантаження повідомлень для поточної кімнати
 function loadMessagesForRoom(roomName) {
   chatWindow.innerHTML = "";
@@ -81,7 +89,7 @@ function switchRoom(newRoomName) {
 // Функція для відображення списку чатів
 async function displayChatList() {
   try {
-    const response = await fetch("http://localhost:3001/api/rooms");
+    const response = await fetch("http://localhost:3000/api/rooms");
     const allRooms = await response.json();
 
     chatList.innerHTML = ""; // Очищаємо існуючий список
@@ -142,7 +150,7 @@ async function displayChatList() {
 // Функція для завантаження та відображення користувачів у модальному вікні
 async function loadUsersForChatCreation() {
   try {
-    const response = await fetch("http://localhost:3001/api/users");
+    const response = await fetch("http://localhost:3000/api/users");
     allUsers = await response.json();
     usersListForChat.innerHTML = "";
 
@@ -173,16 +181,19 @@ createRoomButton.addEventListener("click", () => {
   newChatNameInput.value = "";
   usersListForChat.innerHTML = "";
   loadUsersForChatCreation();
-  createChatModal.style.display = "block";
+  show(createChatModal); // Використовуємо show() для відображення модального вікна
+  //createChatModal.style.display = "block";
 });
 
 closeCreateChatModalButton.addEventListener("click", () => {
-  createChatModal.style.display = "none";
+  hide(createChatModal); // Використовуємо hide() для приховування модального вікна
+  //createChatModal.style.display = "none";
 });
 
 window.addEventListener("click", (event) => {
   if (event.target === createChatModal) {
-    createChatModal.style.display = "none";
+    hide(createChatModal); // Використовуємо hide() для приховування модального вікна
+    //createChatModal.style.display = "none";
   }
 });
 
@@ -218,7 +229,7 @@ submitCreateChatButton.addEventListener("click", async () => {
   }
 
   try {
-    const response = await fetch("http://localhost:3001/api/rooms", {
+    const response = await fetch("http://localhost:3000/api/rooms", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -228,7 +239,8 @@ submitCreateChatButton.addEventListener("click", async () => {
     const data = await response.json();
     if (response.ok) {
       alert(`Чат "${data.name}" успішно створено!`);
-      createChatModal.style.display = "none";
+      hide(createChatModal); // Використовуємо hide() для приховування модального вікна
+      //createChatModal.style.display = "none";
       displayChatList(); // Оновлюємо список чатів
       switchRoom(data.name); // Переключаємося на щойно створений чат
     } else {
@@ -299,12 +311,9 @@ socket.on("new_room_created", (newRoom) => {
 
 // Отримання імені користувача та його ID після логіну (DOMContentLoaded)
 document.addEventListener("DOMContentLoaded", async () => {
-  // Встановлюємо currentUser з DOM під час завантаження сторінки
-  // Це буде "Login" за замовчуванням або реальний логін
-  // let currentUser = getCurrentUserNameFromDOM(); // Логіка перенесена нижче
-
   const storedLogin = localStorage.getItem("userLogin");
   const storedUserId = localStorage.getItem("userId");
+  const storedUsername = localStorage.getItem("username");
 
   if (storedLogin) {
     // Оновлюємо currentUser в `userNameElement` на випадок, якщо `script.js` ще не спрацював.
@@ -313,10 +322,30 @@ document.addEventListener("DOMContentLoaded", async () => {
       userNameElement.textContent = storedLogin;
     }
   }
+
+  if (currentRoom) {
+    socket.emit("join_room", { room: currentRoom, userId: storedUserId || "guest" });
+    console.log(`Attempting to join room: ${currentRoom} as guest.`);
+    socket.emit("get_messages", currentRoom); // <-- Цей виклик є критичним
+  }
+
   // Тепер, коли userNameElement, можливо, оновлено, отримуємо актуальне ім'я
   // `currentUser` тепер не глобальна, а її значення буде братися з `getCurrentUserNameFromDOM()`
   // для відправки повідомлень. Це єдина місце, де `currentUser` залишається глобальною для ініціалізації
   // currentRoom. В інших місцях використовується `getCurrentUserNameFromDOM()`.
+
+  if (currentUserId) {
+    socket.emit("join_room", { room: currentRoom, userId: currentUserId });
+    console.log(`Attempting to join room: ${currentRoom} with user ID: ${currentUserId}`);
+    // Завантажуємо історію повідомлень для цієї кімнати
+    socket.emit("get_messages", currentRoom);
+  } else {
+    // Якщо currentUserId не встановлено (наприклад, для гостя), приєднуємося без нього.
+    // Це може бути не ідеально для персистентності, але для базової функціональності підійде.
+    socket.emit("join_room", { room: currentRoom, userId: "guest" }); // або не передавати userId
+    console.log(`Attempting to join room: ${currentRoom} as guest.`);
+    socket.emit("get_messages", currentRoom);
+  }
 
   if (storedUserId) {
     currentUserId = storedUserId;
@@ -326,7 +355,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Якщо user-name відображає реальний логін, а ID немає
     if (getCurrentUserNameFromDOM() !== "Guest") {
       try {
-        const response = await fetch("http://localhost:3001/api/users");
+        const response = await fetch("http://localhost:3000/api/users");
         const users = await response.json();
         const foundUser = users.find((user) => user.login === getCurrentUserNameFromDOM());
         if (foundUser) {
@@ -346,4 +375,15 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Приєднуємося до поточної кімнати (за замовчуванням "general_chat")
   socket.emit("join_room", { room: currentRoom });
   // loadMessagesForRoom(currentRoom); // Вже викликається в displayChatList
+});
+
+hide(createChatModal); // Приховуємо модальне вікно при завантаженні сторінки
+
+socket.on("messages_history", (messages) => {
+  chatWindow.innerHTML = ""; // Очищаємо вікно чату перед відображенням
+  messages.forEach((msg) => {
+    displayMessage(msg.author, msg.message, msg.time, msg.author === getCurrentUserNameFromDOM());
+  });
+  chatWindow.scrollTop = chatWindow.scrollHeight;
+  console.log("Messages history received and displayed:", messages.length, "messages.");
 });
